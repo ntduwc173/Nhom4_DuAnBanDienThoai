@@ -13,5 +13,5 @@ public interface MaGiamGiaRepository extends JpaRepository<MaGiamGia, String> {
     Optional<MaGiamGia> findByMaGiamGia(String maGiamGia);
 
     // US07: Tìm mã giảm giá tự động đang hoạt động
-    List<MaGiamGia> findByTuDongTrueAndTrangThai(String trangThai);
+    List<MaGiamGia> findByTuDongTrue();
 }

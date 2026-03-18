@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết đơn hàng - PhoneStore</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <div class="container header-inner">
+        <a href="/" class="logo">
+            <i class="fas fa-mobile-alt"></i>
+            <span>PhoneStore</span>
+        </a>
+        <nav class="nav">
+            <a th:href="@{/}" class="nav-link"><i class="fas fa-home"></i> Trang chủ</a>
+            <a th:href="@{/pre-order}" class="nav-link"><i class="fas fa-clock"></i> Pre-order</a>
+            <a th:href="@{/doi-tra}" class="nav-link"><i class="fas fa-exchange-alt"></i> Đổi trả</a>
+            <a th:href="@{/bao-hanh}" class="nav-link"><i class="fas fa-shield-alt"></i> Bảo hành</a>
+        </nav>
+        <a th:href="@{/gio-hang}" class="cart-icon" id="cartIcon">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-badge" th:text="${soLuongGioHang}" th:if="${soLuongGioHang > 0}">0</span>
+        </a>
+    </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<section class="page-section">
+    <div class="container">
+        <div class="page-header">
+            <div>
+                <h1><i class="fas fa-file-invoice" style="color: var(--primary)"></i> Chi tiết đơn hàng</h1>
+                <p class="page-subtitle" th:text="'Mã đơn hàng: ' + ${donHang.maDonHang}"></p>
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <!-- US15: Nút In hóa đơn -->
+                <a th:href="@{'/don-hang/in-hoa-don/' + ${donHang.maDonHang}}" target="_blank" class="btn btn-primary">
+                    <i class="fas fa-print"></i> In hóa đơn
+                </a>
+                <a th:href="@{/}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Về trang chủ
+                </a>
+            </div>
+        </div>
+
+        <div class="checkout-layout">
+            <!-- Thông tin đơn hàng -->
+            <div>
+                <div class="form-card">
+                    <h3><i class="fas fa-user"></i> Thông tin khách hàng</h3>
+                    <div class="order-info-card">
+                        <div class="order-detail">
+                            <span>Họ và tên:</span>
+                            <strong th:text="${donHang.khachHang?.ten}"></strong>
+                        </div>
+                        <div class="order-detail">
+                            <span>Số điện thoại:</span>
+                            <strong th:text="${donHang.khachHang?.soDienThoai}"></strong>
+                        </div>
+                        <div class="order-detail">
+                            <span>Địa chỉ nhận hàng:</span>
+                            <strong th:text="${donHang.diaChiNhanHang}"></strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-card">
+                    <h3><i class="fas fa-box"></i> Thông tin đơn hàng</h3>
+                    <div class="order-info-card">
+                        <div class="order-detail">
+                            <span>Mã đơn hàng:</span>
+                            <strong th:text="${donHang.maDonHang}"></strong>
+                        </div>
+                        <div class="order-detail">
+                            <span>Ngày đặt:</span>
+                            <strong th:text="${#temporals.format(donHang.ngayDat, 'dd/MM/yyyy HH:mm')}"></strong>
+                        </div>
+                        <div class="order-detail">
+                            <span>Trạng thái:</span>
+                            <span class="status-badge" th:text="${donHang.trangThai}"
+                                  th:classappend="${donHang.trangThai == 'Hoàn thành'} ? 'status-done' : ''"></span>
+                        </div>
+                        <div class="order-detail">
+                            <span>Phương thức thanh toán:</span>
+                            <strong th:text="${donHang.phuongThucThanhToan}"></strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Danh sách sản phẩm -->
+                <div class="form-card">
+                    <h3><i class="fas fa-shopping-bag"></i> Sản phẩm đã đặt</h3>
+                    <div class="order-items">
+                        <div class="order-item" th:each="ct : ${chiTietList}">
+                            <img class="order-item-img"
+                                 th:src="${ct.sanPham?.hinhAnh != null ? ct.sanPham.hinhAnh : '/images/no-image.png'}"
+                                 th:alt="${ct.sanPham?.tenSanPham}">
+                            <div class="order-item-info">
+                                <p th:text="${ct.sanPham?.tenSanPham}">Tên sản phẩm</p>
+                                <span th:text="'Số lượng: ' + ${ct.soLuong}">x1</span>
+                            </div>
+                            <div class="order-item-price"
+                                 th:text="${#numbers.formatDecimal(ct.gia, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tổng kết -->
+            <div>
+                <div class="summary-card sticky">
+                    <h3>Tổng kết đơn hàng</h3>
+                    <div class="summary-row">
+                        <span>Tổng số sản phẩm:</span>
+                        <strong th:text="${#lists.size(chiTietList)}">0</strong>
+                    </div>
+                    <hr>
+                    <div class="summary-row total-row">
+                        <span>Tổng tiền:</span>
+                        <span class="total-price"
+                              th:text="${#numbers.formatDecimal(donHang.tongTien, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</span>
+                    </div>
+                    <hr>
+                    <!-- US15: Nút In hóa đơn nổi bật -->
+                    <a th:href="@{'/don-hang/in-hoa-don/' + ${donHang.maDonHang}}" target="_blank"
+                       class="btn btn-primary btn-block" style="margin-top: 16px;">
+                        <i class="fas fa-print"></i> In hóa đơn
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3><i class="fas fa-mobile-alt"></i> PhoneStore</h3>
+                <p>Nhóm 4 - Dự án bán điện thoại và phụ kiện</p>
+            </div>
+            <div class="footer-links">
+                <a th:href="@{/}">Trang chủ</a>
+                <a th:href="@{/pre-order}">Pre-order</a>
+                <a th:href="@{/doi-tra}">Đổi trả</a>
+                <a th:href="@{/bao-hanh}">Bảo hành</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 PhoneStore - Nhóm 4. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

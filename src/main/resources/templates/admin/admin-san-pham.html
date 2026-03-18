@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Sản phẩm - Admin PhoneStore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <div class="container header-inner">
+        <a href="/admin/san-pham" class="logo">
+            <i class="fas fa-cog"></i>
+            <span>Admin Panel</span>
+        </a>
+        <nav class="nav">
+            <a th:href="@{/admin/san-pham}" class="nav-link active"><i class="fas fa-box"></i> Sản phẩm</a>
+            <a th:href="@{/admin/giam-gia}" class="nav-link"><i class="fas fa-tags"></i> Giảm giá</a>
+            <a th:href="@{/admin/don-hang}" class="nav-link"><i class="fas fa-clipboard-list"></i> Đơn hàng</a>
+        </nav>
+        <a th:href="@{/}" class="btn btn-outline btn-sm"><i class="fas fa-store"></i> Xem Shop</a>
+    </div>
+</header>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer">
+    <div class="toast success" th:if="${success}" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${success}"></span>
+    </div>
+    <div class="toast error" th:if="${error}" id="toast">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${error}"></span>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <h3>Quản trị</h3>
+        <a th:href="@{/admin/san-pham}" class="sidebar-link active"><i class="fas fa-box"></i> Sản phẩm</a>
+        <a th:href="@{/admin/giam-gia}" class="sidebar-link"><i class="fas fa-tags"></i> Giảm giá</a>
+        <a th:href="@{/admin/don-hang}" class="sidebar-link"><i class="fas fa-clipboard-list"></i> Đơn hàng</a>
+        <h3 style="margin-top: 24px;">Cửa hàng</h3>
+        <a th:href="@{/}" class="sidebar-link"><i class="fas fa-store"></i> Trang chủ Shop</a>
+    </aside>
+
+    <!-- Content -->
+    <main class="admin-content">
+        <div class="admin-header">
+            <div>
+                <h1><i class="fas fa-box"></i> Quản lý Sản phẩm</h1>
+            </div>
+            <div class="admin-stats">
+                <span class="stat-badge total" th:text="'Tổng: ' + ${#lists.size(sanPhams)} + ' sản phẩm'"></span>
+                <button class="btn btn-primary btn-sm" onclick="openAddModal()">
+                    <i class="fas fa-plus"></i> Thêm sản phẩm
+                </button>
+            </div>
+        </div>
+
+        <!-- Bảng sản phẩm -->
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Ảnh</th>
+                        <th>Tên sản phẩm</th>
+                        <th>Hãng</th>
+                        <th>Loại</th>
+                        <th>Giá</th>
+                        <th>Pre-order</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="sp : ${sanPhams}">
+                        <td>
+                            <img class="img-thumb"
+                                 th:src="${sp.hinhAnh != null ? sp.hinhAnh : '/images/no-image.png'}"
+                                 th:alt="${sp.tenSanPham}">
+                        </td>
+                        <td class="product-name-cell" th:text="${sp.tenSanPham}">Tên SP</td>
+                        <td th:text="${sp.hang != null ? sp.hang.tenHang : 'N/A'}">Hãng</td>
+                        <td th:text="${sp.loaiSanPham != null ? sp.loaiSanPham.tenLoai : 'N/A'}">Loại</td>
+                        <td class="price-text" th:text="${sp.gia != null ? #numbers.formatDecimal(sp.gia, 0, 'COMMA', 0, 'POINT') + ' ₫' : 'N/A'}">0 ₫</td>
+                        <td>
+                            <span class="type-badge type-preorder" th:if="${sp.preOrder}">Pre-order</span>
+                            <span class="type-badge type-thuong" th:unless="${sp.preOrder}">Thường</span>
+                        </td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="btn-sm btn-edit" 
+                                        th:data-ma="${sp.maSanPham}"
+                                        th:data-ten="${sp.tenSanPham}"
+                                        th:data-hang="${sp.hang != null ? sp.hang.maHang : ''}"
+                                        th:data-gia="${sp.gia != null ? sp.gia : 0}"
+                                        th:data-loai="${sp.loaiSanPham != null ? sp.loaiSanPham.maLoai : ''}"
+                                        th:data-anh="${sp.hinhAnh != null ? sp.hinhAnh : ''}"
+                                        th:data-preorder="${sp.preOrder != null ? sp.preOrder : false}"
+                                        onclick="openEditModalFromData(this)">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <form th:action="@{/admin/san-pham/xoa}" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm này?')">
+                                    <input type="hidden" name="maSanPham" th:value="${sp.maSanPham}">
+                                    <button type="submit" class="btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+<!-- MODAL THÊM SẢN PHẨM -->
+<div class="admin-modal" id="addModal">
+    <div class="admin-modal-content">
+        <div class="admin-modal-header">
+            <h2><i class="fas fa-plus-circle" style="color: var(--success)"></i> Thêm sản phẩm mới</h2>
+            <button class="admin-modal-close" onclick="closeModal('addModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <form th:action="@{/admin/san-pham/them}" method="post">
+            <div class="form-group">
+                <label>Tên sản phẩm <span class="required">*</span></label>
+                <input type="text" name="tenSanPham" required placeholder="VD: iPhone 16 Pro Max">
+            </div>
+            <div class="form-group">
+                <label>Hãng <span class="required">*</span></label>
+                <select name="maHang" required class="form-select">
+                    <option value="">-- Chọn hãng --</option>
+                    <option th:each="h : ${hangs}" th:value="${h.maHang}" th:text="${h.tenHang}">Hãng</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Giá (₫) <span class="required">*</span></label>
+                <input type="number" name="gia" required min="0" placeholder="VD: 29990000">
+            </div>
+            <div class="form-group">
+                <label>Loại <span class="required">*</span></label>
+                <select name="maLoai" required class="form-select">
+                    <option value="">-- Chọn loại --</option>
+                    <option th:each="l : ${loais}" th:value="${l.maLoai}" th:text="${l.tenLoai}">Loại</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Link ảnh (URL)</label>
+                <input type="text" name="hinhAnh" placeholder="https://example.com/image.jpg">
+            </div>
+            <div class="form-group">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" name="preOrder" value="true" id="addPreOrder">
+                    <label for="addPreOrder">Sản phẩm Pre-order</label>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="fas fa-save"></i> Lưu sản phẩm
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL SỬA SẢN PHẨM -->
+<div class="admin-modal" id="editModal">
+    <div class="admin-modal-content">
+        <div class="admin-modal-header">
+            <h2><i class="fas fa-edit" style="color: var(--primary)"></i> Cập nhật sản phẩm</h2>
+            <button class="admin-modal-close" onclick="closeModal('editModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <form th:action="@{/admin/san-pham/cap-nhat}" method="post">
+            <input type="hidden" name="maSanPham" id="editMaSP">
+            <div class="form-group">
+                <label>Tên sản phẩm <span class="required">*</span></label>
+                <input type="text" name="tenSanPham" id="editTenSP" required>
+            </div>
+            <div class="form-group">
+                <label>Hãng <span class="required">*</span></label>
+                <select name="maHang" id="editMaHang" required class="form-select">
+                    <option value="">-- Chọn hãng --</option>
+                    <option th:each="h : ${hangs}" th:value="${h.maHang}" th:text="${h.tenHang}">Hãng</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Giá (₫) <span class="required">*</span></label>
+                <input type="number" name="gia" id="editGia" required min="0">
+            </div>
+            <div class="form-group">
+                <label>Loại <span class="required">*</span></label>
+                <select name="maLoai" id="editMaLoai" required class="form-select">
+                    <option value="">-- Chọn loại --</option>
+                    <option th:each="l : ${loais}" th:value="${l.maLoai}" th:text="${l.tenLoai}">Loại</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Link ảnh (URL)</label>
+                <input type="text" name="hinhAnh" id="editHinhAnh">
+            </div>
+            <div class="form-group">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" name="preOrder" value="true" id="editPreOrder">
+                    <label for="editPreOrder">Sản phẩm Pre-order</label>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="fas fa-save"></i> Cập nhật
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openAddModal() { document.getElementById('addModal').classList.add('show'); }
+    
+    function openEditModalFromData(btn) {
+        document.getElementById('editMaSP').value = btn.getAttribute('data-ma');
+        document.getElementById('editTenSP').value = btn.getAttribute('data-ten');
+        document.getElementById('editMaHang').value = btn.getAttribute('data-hang');
+        document.getElementById('editGia').value = btn.getAttribute('data-gia');
+        document.getElementById('editMaLoai').value = btn.getAttribute('data-loai');
+        document.getElementById('editHinhAnh').value = btn.getAttribute('data-anh');
+        document.getElementById('editPreOrder').checked = btn.getAttribute('data-preorder') === 'true';
+        document.getElementById('editModal').classList.add('show');
+    }
+    
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+    // Close modal on backdrop click
+    document.querySelectorAll('.admin-modal').forEach(modal => {
+        modal.addEventListener('click', e => { if (e.target === modal) closeModal(modal.id); });
+    });
+
+    // Toast
+    const toast = document.getElementById('toast');
+    if (toast) {
+        toast.classList.add('show');
+        setTimeout(() => { toast.classList.remove('show'); toast.classList.add('hide'); }, 3000);
+    }
+</script>
+
+</body>
+</html>

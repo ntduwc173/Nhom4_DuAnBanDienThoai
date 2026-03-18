@@ -39,6 +39,10 @@ public class DonHang {
     @Column(name = "DiaChiNhanHang", length = 500)
     private String diaChiNhanHang;
 
+    // US14: Đã nhận tiền (áp dụng cho đơn chuyển khoản)
+    @Column(name = "DaThanhToan")
+    private Boolean daThanhToan;
+
     // Một đơn hàng có nhiều chi tiết đơn hàng
     @OneToMany(mappedBy = "donHang", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ChiTietDonHang> chiTietDonHangs;

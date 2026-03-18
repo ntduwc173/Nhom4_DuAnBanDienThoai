@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Đơn hàng - Admin PhoneStore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <div class="container header-inner">
+        <a href="/admin/san-pham" class="logo"><i class="fas fa-cog"></i><span>Admin Panel</span></a>
+        <nav class="nav">
+            <a th:href="@{/admin/san-pham}" class="nav-link"><i class="fas fa-box"></i> Sản phẩm</a>
+            <a th:href="@{/admin/giam-gia}" class="nav-link"><i class="fas fa-tags"></i> Giảm giá</a>
+            <a th:href="@{/admin/don-hang}" class="nav-link active"><i class="fas fa-clipboard-list"></i> Đơn hàng</a>
+        </nav>
+        <a th:href="@{/}" class="btn btn-outline btn-sm"><i class="fas fa-store"></i> Xem Shop</a>
+    </div>
+</header>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer">
+    <div class="toast success" th:if="${success}" id="toast">
+        <i class="fas fa-check-circle"></i><span th:text="${success}"></span>
+    </div>
+    <div class="toast error" th:if="${error}" id="toast">
+        <i class="fas fa-exclamation-circle"></i><span th:text="${error}"></span>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <h3>Quản trị</h3>
+        <a th:href="@{/admin/san-pham}" class="sidebar-link"><i class="fas fa-box"></i> Sản phẩm</a>
+        <a th:href="@{/admin/giam-gia}" class="sidebar-link"><i class="fas fa-tags"></i> Giảm giá</a>
+        <a th:href="@{/admin/don-hang}" class="sidebar-link active"><i class="fas fa-clipboard-list"></i> Đơn hàng</a>
+        <h3 style="margin-top: 24px;">Cửa hàng</h3>
+        <a th:href="@{/}" class="sidebar-link"><i class="fas fa-store"></i> Trang chủ Shop</a>
+    </aside>
+
+    <main class="admin-content">
+        <div class="admin-header">
+            <div>
+                <h1><i class="fas fa-clipboard-list"></i> Quản lý Đơn hàng</h1>
+            </div>
+            <div class="admin-stats">
+                <span class="stat-badge total" th:text="'Tổng: ' + ${#lists.size(donHangs)} + ' đơn hàng'"></span>
+            </div>
+        </div>
+
+        <!-- Bảng đơn hàng -->
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Mã đơn</th>
+                        <th>Khách hàng</th>
+                        <th>SĐT</th>
+                        <th>Tổng tiền</th>
+                        <th>Loại đơn</th>
+                        <th>Trạng thái</th>
+                        <th>Thanh toán</th>
+                        <th>Ngày đặt</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="dh : ${donHangs}">
+                        <td><code th:text="${dh.maDonHang}">DH001</code></td>
+                        <td th:text="${dh.khachHang != null ? dh.khachHang.ten : 'N/A'}">Khách</td>
+                        <td th:text="${dh.khachHang != null ? dh.khachHang.soDienThoai : 'N/A'}">SĐT</td>
+                        <td class="price-text"
+                            th:text="${dh.tongTien != null ? #numbers.formatDecimal(dh.tongTien, 0, 'COMMA', 0, 'POINT') + ' ₫' : 'N/A'}">0 ₫</td>
+                        <!-- Phân loại rõ đơn thường vs Pre-order -->
+                        <td>
+                            <span class="type-badge type-preorder" th:if="${dh.trangThai == 'Pre-order' || (dh.maDonHang != null && dh.maDonHang.startsWith('PO'))}">
+                                <i class="fas fa-clock"></i> Pre-order
+                            </span>
+                            <span class="type-badge type-thuong" th:unless="${dh.trangThai == 'Pre-order' || (dh.maDonHang != null && dh.maDonHang.startsWith('PO'))}">
+                                <i class="fas fa-shopping-bag"></i> Thường
+                            </span>
+                        </td>
+                        <td>
+                            <span class="status"
+                                  th:classappend="${dh.trangThai == 'Chờ xử lý' || dh.trangThai == 'Chờ duyệt'} ? 'status-cho-xu-ly' :
+                                                  (${dh.trangThai == 'Đang Ship'} ? 'status-dang-ship' :
+                                                  (${dh.trangThai == 'Hoàn thành'} ? 'status-hoan-thanh' :
+                                                  (${dh.trangThai == 'Hủy'} ? 'status-huy' : 'status-pre-order')))"
+                                  th:text="${dh.trangThai}">Trạng thái</span>
+                        </td>
+                        <td>
+                            <span class="paid-badge paid-yes" th:if="${dh.daThanhToan != null && dh.daThanhToan}">
+                                <i class="fas fa-check-circle"></i> Đã TT
+                            </span>
+                            <span class="paid-badge paid-no" th:if="${dh.phuongThucThanhToan == 'Chuyển khoản' && (dh.daThanhToan == null || !dh.daThanhToan)}">
+                                <i class="fas fa-times-circle"></i> Chưa TT
+                            </span>
+                            <span th:if="${dh.phuongThucThanhToan == 'COD'}" style="color: var(--text-muted); font-size: 0.85rem;">COD</span>
+                        </td>
+                        <td th:text="${dh.ngayDat != null ? #temporals.format(dh.ngayDat, 'dd/MM/yyyy HH:mm') : 'N/A'}">N/A</td>
+                        <td>
+                            <a th:href="@{'/admin/don-hang/chi-tiet/' + ${dh.maDonHang}}" class="btn-sm btn-view">
+                                <i class="fas fa-eye"></i> Chi tiết
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+<script>
+    const toast = document.getElementById('toast');
+    if (toast) {
+        toast.classList.add('show');
+        setTimeout(() => { toast.classList.remove('show'); toast.classList.add('hide'); }, 3000);
+    }
+</script>
+
+</body>
+</html>

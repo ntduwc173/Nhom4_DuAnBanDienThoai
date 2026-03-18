@@ -91,10 +91,10 @@ public class DatHangController {
     @ResponseBody
     public Map<String, Object> kiemTraMaGiamGia(@RequestParam String maGiamGia) {
         Map<String, Object> result = new HashMap<>();
-        MaGiamGia maGG = donHangService.kiemTraMaGiamGia(maGiamGia);
+        BigDecimal tongTien = gioHangService.getTongTienGioHang();
+        MaGiamGia maGG = donHangService.kiemTraMaGiamGia(maGiamGia, tongTien);
 
         if (maGG != null) {
-            BigDecimal tongTien = gioHangService.getTongTienGioHang();
             BigDecimal soTienGiam = tongTien.multiply(BigDecimal.valueOf(maGG.getPhanTramGiam() / 100))
                     .setScale(0, RoundingMode.HALF_UP);
 

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yêu cầu bảo hành - PhoneStore</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <div class="container header-inner">
+        <a href="/" class="logo">
+            <i class="fas fa-mobile-alt"></i>
+            <span>PhoneStore</span>
+        </a>
+        <nav class="nav">
+            <a th:href="@{/}" class="nav-link"><i class="fas fa-home"></i> Trang chủ</a>
+            <a th:href="@{/pre-order}" class="nav-link"><i class="fas fa-clock"></i> Pre-order</a>
+            <a th:href="@{/doi-tra}" class="nav-link"><i class="fas fa-exchange-alt"></i> Đổi trả</a>
+            <a th:href="@{/bao-hanh}" class="nav-link active"><i class="fas fa-shield-alt"></i> Bảo hành</a>
+        </nav>
+        <a th:href="@{/gio-hang}" class="cart-icon" id="cartIcon">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-badge" th:text="${soLuongGioHang}" th:if="${soLuongGioHang > 0}">0</span>
+        </a>
+    </div>
+</header>
+
+<!-- TOAST NOTIFICATION -->
+<div class="toast-container" id="toastContainer">
+    <div class="toast success" th:if="${success}" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${success}"></span>
+    </div>
+    <div class="toast error" th:if="${error}" id="toast">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${error}"></span>
+    </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<section class="page-section">
+    <div class="container">
+        <div class="return-layout">
+            <div class="page-header">
+                <div>
+                    <h1><i class="fas fa-shield-alt" style="color: var(--primary)"></i> Yêu cầu bảo hành</h1>
+                    <p class="page-subtitle">Sản phẩm được bảo hành 12 tháng kể từ ngày nhận hàng (đơn hàng hoàn thành)</p>
+                </div>
+            </div>
+
+            <!-- THÔNG TIN BẢO HÀNH -->
+            <div class="preorder-notice">
+                <i class="fas fa-info-circle"></i>
+                <div>
+                    <strong>Chính sách bảo hành</strong>
+                    <p>• Thời hạn bảo hành: <strong>12 tháng</strong> kể từ ngày nhận hàng</p>
+                    <p>• Chỉ áp dụng cho đơn hàng đã <strong>hoàn thành</strong></p>
+                    <p>• Bảo hành các lỗi do <strong>nhà sản xuất</strong> (không bao gồm rơi vỡ, vào nước,...)</p>
+                    <p>• Nhập <strong>mã đơn hàng</strong> hoặc <strong>số điện thoại</strong> để kiểm tra</p>
+                </div>
+            </div>
+
+            <!-- FORM TÌM ĐƠN HÀNG -->
+            <div class="form-card">
+                <h3><i class="fas fa-search"></i> Kiểm tra thời hạn bảo hành</h3>
+                <form th:action="@{/bao-hanh/kiem-tra}" method="post">
+                    <div class="form-group">
+                        <label>Mã đơn hàng hoặc Số điện thoại <span class="required">*</span></label>
+                        <input type="text" name="maDonHangOrSdt"
+                               th:value="${maDonHangOrSdt}"
+                               placeholder="Nhập mã đơn hàng (VD: DH123...) hoặc SĐT (VD: 0912345678)"
+                               required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Kiểm tra bảo hành
+                    </button>
+                </form>
+            </div>
+
+            <!-- KẾT QUẢ TÌM KIẾM -->
+            <div th:if="${donHang}" class="form-card" style="border-color: var(--success);">
+                <h3 style="color: var(--success);">
+                    <i class="fas fa-check-circle"></i> Đơn hàng còn trong thời hạn bảo hành
+                </h3>
+
+                <!-- Thông tin đơn hàng -->
+                <div class="order-info-card" style="margin-bottom: 20px;">
+                    <div class="order-detail">
+                        <span>Mã đơn hàng:</span>
+                        <strong th:text="${donHang.maDonHang}"></strong>
+                    </div>
+                    <div class="order-detail">
+                        <span>Khách hàng:</span>
+                        <strong th:text="${donHang.khachHang?.ten}"></strong>
+                    </div>
+                    <div class="order-detail">
+                        <span>Số điện thoại:</span>
+                        <strong th:text="${donHang.khachHang?.soDienThoai}"></strong>
+                    </div>
+                    <div class="order-detail">
+                        <span>Ngày đặt hàng:</span>
+                        <strong th:text="${#temporals.format(donHang.ngayDat, 'dd/MM/yyyy HH:mm')}"></strong>
+                    </div>
+                    <div class="order-detail">
+                        <span>Trạng thái:</span>
+                        <span class="status-badge status-done" th:text="${donHang.trangThai}"></span>
+                    </div>
+                    <div class="order-detail">
+                        <span>Bảo hành còn lại:</span>
+                        <strong style="color: var(--success);" th:text="${soThangConLai} + ' tháng'"></strong>
+                    </div>
+                </div>
+
+                <!-- Form mô tả lỗi -->
+                <form th:action="@{/bao-hanh/gui-yeu-cau}" method="post">
+                    <input type="hidden" name="maDonHang" th:value="${donHang.maDonHang}">
+
+                    <div class="form-group">
+                        <label><i class="fas fa-bug"></i> Mô tả lỗi máy <span class="required">*</span></label>
+                        <textarea name="moTaLoi" rows="5"
+                                  placeholder="Vui lòng mô tả chi tiết lỗi bạn gặp phải. VD: Màn hình bị sọc, loa không phát âm, pin chai nhanh..."
+                                  required
+                                  style="resize: vertical;"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-paper-plane"></i> Gửi yêu cầu bảo hành
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3><i class="fas fa-mobile-alt"></i> PhoneStore</h3>
+                <p>Nhóm 4 - Dự án bán điện thoại và phụ kiện</p>
+            </div>
+            <div class="footer-links">
+                <a th:href="@{/}">Trang chủ</a>
+                <a th:href="@{/pre-order}">Pre-order</a>
+                <a th:href="@{/doi-tra}">Đổi trả</a>
+                <a th:href="@{/bao-hanh}">Bảo hành</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 PhoneStore - Nhóm 4. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Auto-hide toast after 3 seconds
+    const toast = document.getElementById('toast');
+    if (toast) {
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+            toast.classList.add('hide');
+        }, 3000);
+    }
+</script>
+
+</body>
+</html>

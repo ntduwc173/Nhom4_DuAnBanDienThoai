@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Hóa đơn - ' + ${hoaDon.maHoaDon}">Hóa đơn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ====== IN HÓA ĐƠN - ĐEN TRẮNG ====== */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', 'Courier New', monospace;
+            background: #f5f5f5;
+            color: #000;
+            line-height: 1.5;
+        }
+
+        .invoice-wrapper {
+            max-width: 800px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 40px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Header */
+        .invoice-header {
+            text-align: center;
+            border-bottom: 3px double #000;
+            padding-bottom: 20px;
+            margin-bottom: 24px;
+        }
+
+        .invoice-header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 4px;
+        }
+
+        .invoice-header .store-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .invoice-header p {
+            font-size: 12px;
+            color: #555;
+        }
+
+        /* Invoice Info */
+        .invoice-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px dashed #ccc;
+        }
+
+        .invoice-info-left, .invoice-info-right {
+            font-size: 13px;
+        }
+
+        .invoice-info-left p, .invoice-info-right p {
+            margin-bottom: 4px;
+        }
+
+        .invoice-info-right {
+            text-align: right;
+        }
+
+        .info-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-weight: 600;
+        }
+
+        /* Table */
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+        }
+
+        .invoice-table thead th {
+            background: #000;
+            color: #fff;
+            padding: 10px 12px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .invoice-table thead th:first-child {
+            text-align: left;
+        }
+
+        .invoice-table thead th:last-child,
+        .invoice-table thead th:nth-child(3),
+        .invoice-table thead th:nth-child(4) {
+            text-align: right;
+        }
+
+        .invoice-table thead th:nth-child(2) {
+            text-align: center;
+        }
+
+        .invoice-table tbody td {
+            padding: 10px 12px;
+            font-size: 13px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .invoice-table tbody td:first-child {
+            font-weight: 500;
+        }
+
+        .invoice-table tbody td:nth-child(2) {
+            text-align: center;
+        }
+
+        .invoice-table tbody td:nth-child(3),
+        .invoice-table tbody td:nth-child(4) {
+            text-align: right;
+        }
+
+        .invoice-table tbody tr:last-child td {
+            border-bottom: 2px solid #000;
+        }
+
+        /* Summary */
+        .invoice-summary {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 24px;
+        }
+
+        .invoice-summary-table {
+            width: 300px;
+        }
+
+        .summary-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 13px;
+        }
+
+        .summary-line.total {
+            font-size: 18px;
+            font-weight: 800;
+            border-top: 2px solid #000;
+            padding-top: 12px;
+            margin-top: 8px;
+        }
+
+        /* Footer */
+        .invoice-footer {
+            text-align: center;
+            border-top: 1px dashed #ccc;
+            padding-top: 20px;
+            margin-top: 30px;
+        }
+
+        .invoice-footer p {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .invoice-footer .thank-you {
+            font-size: 16px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 8px;
+        }
+
+        /* Print Button */
+        .print-actions {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .btn-print {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 32px;
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .btn-print:hover {
+            background: #333;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: #fff;
+            }
+
+            .invoice-wrapper {
+                margin: 0;
+                padding: 20px;
+                border: none;
+                box-shadow: none;
+            }
+
+            .print-actions {
+                display: none !important;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NÚT IN -->
+<div class="print-actions no-print">
+    <button class="btn-print" onclick="window.print()">
+        <i class="fas fa-print"></i> In hóa đơn
+    </button>
+</div>
+
+<!-- HÓA ĐƠN -->
+<div class="invoice-wrapper">
+    <!-- Header -->
+    <div class="invoice-header">
+        <div class="store-name">📱 PHONESTORE</div>
+        <h1>HÓA ĐƠN BÁN HÀNG</h1>
+        <p>Nhóm 4 - Dự án bán điện thoại và phụ kiện</p>
+        <p>Địa chỉ: 123 Đường ABC, Quận XYZ, TP. HCM | SĐT: 0123 456 789</p>
+    </div>
+
+    <!-- Thông tin hóa đơn -->
+    <div class="invoice-info">
+        <div class="invoice-info-left">
+            <p><span class="info-label">Mã hóa đơn:</span> <span class="info-value" th:text="${hoaDon.maHoaDon}"></span></p>
+            <p><span class="info-label">Mã đơn hàng:</span> <span class="info-value" th:text="${donHang.maDonHang}"></span></p>
+            <p><span class="info-label">Ngày tạo:</span> <span class="info-value" th:text="${#temporals.format(hoaDon.ngayTao, 'dd/MM/yyyy HH:mm:ss')}"></span></p>
+        </div>
+        <div class="invoice-info-right">
+            <p><span class="info-label">Khách hàng:</span> <span class="info-value" th:text="${donHang.khachHang?.ten}"></span></p>
+            <p><span class="info-label">SĐT:</span> <span class="info-value" th:text="${donHang.khachHang?.soDienThoai}"></span></p>
+            <p><span class="info-label">Địa chỉ:</span> <span class="info-value" th:text="${donHang.diaChiNhanHang}"></span></p>
+        </div>
+    </div>
+
+    <!-- Bảng sản phẩm -->
+    <table class="invoice-table">
+        <thead>
+            <tr>
+                <th>Sản phẩm</th>
+                <th>SL</th>
+                <th>Đơn giá</th>
+                <th>Thành tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="ct, iterStat : ${chiTietList}">
+                <td th:text="${ct.sanPham?.tenSanPham}">Tên sản phẩm</td>
+                <td th:text="${ct.soLuong}">1</td>
+                <td th:text="${#numbers.formatDecimal(ct.gia, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</td>
+                <td th:text="${#numbers.formatDecimal(ct.gia * ct.soLuong, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Tổng kết -->
+    <div class="invoice-summary">
+        <div class="invoice-summary-table">
+            <div class="summary-line">
+                <span>Phương thức thanh toán:</span>
+                <strong th:text="${donHang.phuongThucThanhToan}">COD</strong>
+            </div>
+            <div class="summary-line">
+                <span>Phí vận chuyển:</span>
+                <strong>Miễn phí</strong>
+            </div>
+            <div class="summary-line total">
+                <span>TỔNG CỘNG:</span>
+                <strong th:text="${#numbers.formatDecimal(donHang.tongTien, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="invoice-footer">
+        <p class="thank-you">Cảm ơn quý khách đã mua hàng!</p>
+        <p>Mọi thắc mắc xin liên hệ: 0123 456 789 | support@phonestore.vn</p>
+        <p>Bảo hành 12 tháng kể từ ngày nhận hàng</p>
+        <p style="margin-top: 12px; font-style: italic;">* Đây là hóa đơn bán hàng, vui lòng giữ lại để làm chứng từ bảo hành *</p>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</body>
+</html>

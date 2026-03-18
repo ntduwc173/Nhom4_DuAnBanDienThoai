@@ -87,15 +87,24 @@ public class DonHangService {
     }
 
     // US06: Kiểm tra mã giảm giá
-    public MaGiamGia kiemTraMaGiamGia(String maGiamGiaCode) {
+    public MaGiamGia kiemTraMaGiamGia(String maGiamGiaCode, BigDecimal tongTienTruocGiam) {
+        if (maGiamGiaCode == null || maGiamGiaCode.trim().isEmpty()) {
+            return null;
+        }
+        
+        maGiamGiaCode = maGiamGiaCode.trim().toUpperCase();
         Optional<MaGiamGia> maGGOpt = maGiamGiaRepository.findByMaGiamGia(maGiamGiaCode);
+        
         if (maGGOpt.isEmpty()) {
             return null;
         }
         MaGiamGia maGG = maGGOpt.get();
 
-        // Kiểm tra trạng thái
-        if (!"Hoạt động".equals(maGG.getTrangThai())) {
+        // Bỏ check "Hoạt động" bằng String để tránh lỗi mất dấu tiếng Việt trên SQL Server
+        // Chỉ dùng logic kiểm tra giới hạn thời gian thực tế:
+
+        // Kiểm tra điều kiện tối thiểu
+        if (maGG.getDieuKienToiThieu() != null && tongTienTruocGiam != null && tongTienTruocGiam.compareTo(maGG.getDieuKienToiThieu()) < 0) {
             return null;
         }
 
@@ -113,7 +122,7 @@ public class DonHangService {
 
     // Áp dụng mã giảm giá cho đơn hàng
     private void apDungMaGiamGia(DonHang donHang, String maGiamGiaCode, BigDecimal tongTien) {
-        MaGiamGia maGG = kiemTraMaGiamGia(maGiamGiaCode);
+        MaGiamGia maGG = kiemTraMaGiamGia(maGiamGiaCode, tongTien);
         if (maGG != null) {
             BigDecimal soTienGiam = tongTien.multiply(BigDecimal.valueOf(maGG.getPhanTramGiam() / 100))
                     .setScale(2, RoundingMode.HALF_UP);
@@ -133,7 +142,7 @@ public class DonHangService {
 
     // US07: Áp dụng giảm giá tự động
     private void apDungGiamGiaTuDong(DonHang donHang, BigDecimal tongTienGoc) {
-        List<MaGiamGia> autoDiscounts = maGiamGiaRepository.findByTuDongTrueAndTrangThai("Hoạt động");
+        List<MaGiamGia> autoDiscounts = maGiamGiaRepository.findByTuDongTrue();
         for (MaGiamGia maGG : autoDiscounts) {
             // Kiểm tra điều kiện tối thiểu
             if (maGG.getDieuKienToiThieu() != null && tongTienGoc.compareTo(maGG.getDieuKienToiThieu()) < 0) {
@@ -143,6 +152,9 @@ public class DonHangService {
             // Kiểm tra hạn sử dụng
             LocalDateTime now = LocalDateTime.now();
             if (maGG.getNgayKetThuc() != null && now.isAfter(maGG.getNgayKetThuc())) {
+                continue;
+            }
+            if (maGG.getNgayBatDau() != null && now.isBefore(maGG.getNgayBatDau())) {
                 continue;
             }
 
@@ -203,5 +215,28 @@ public class DonHangService {
     // Lấy đơn hàng theo mã
     public Optional<DonHang> getDonHangById(String maDonHang) {
         return donHangRepository.findById(maDonHang);
+    }
+
+    // US13: Lấy tất cả đơn hàng (admin)
+    public List<DonHang> getAllDonHang() {
+        return donHangRepository.findAllByOrderByNgayDatDesc();
+    }
+
+    // US14: Cập nhật trạng thái đơn hàng
+    @Transactional
+    public DonHang capNhatTrangThai(String maDonHang, String trangThaiMoi) {
+        DonHang donHang = donHangRepository.findById(maDonHang)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng!"));
+        donHang.setTrangThai(trangThaiMoi);
+        return donHangRepository.save(donHang);
+    }
+
+    // US14: Đánh dấu đã thanh toán (cho đơn chuyển khoản)
+    @Transactional
+    public DonHang capNhatDaThanhToan(String maDonHang, boolean daThanhToan) {
+        DonHang donHang = donHangRepository.findById(maDonHang)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng!"));
+        donHang.setDaThanhToan(daThanhToan);
+        return donHangRepository.save(donHang);
     }
 }

@@ -22,6 +22,7 @@
             <a th:href="@{/}" class="nav-link"><i class="fas fa-home"></i> Trang chủ</a>
             <a th:href="@{/pre-order}" class="nav-link"><i class="fas fa-clock"></i> Pre-order</a>
             <a th:href="@{/doi-tra}" class="nav-link"><i class="fas fa-exchange-alt"></i> Đổi trả</a>
+            <a th:href="@{/bao-hanh}" class="nav-link"><i class="fas fa-shield-alt"></i> Bảo hành</a>
         </nav>
         <a th:href="@{/gio-hang}" class="cart-icon" id="cartIcon">
             <i class="fas fa-shopping-cart"></i>
@@ -102,6 +103,8 @@
 
             <div class="success-actions">
                 <a th:href="@{/}" class="btn btn-primary"><i class="fas fa-home"></i> Về trang chủ</a>
+                <a th:if="${donHang != null}" th:href="@{'/don-hang/chi-tiet/' + ${donHang.maDonHang}}" class="btn btn-secondary"><i class="fas fa-file-invoice"></i> Xem chi tiết</a>
+                <a th:if="${donHang != null}" th:href="@{'/don-hang/in-hoa-don/' + ${donHang.maDonHang}}" target="_blank" class="btn btn-outline"><i class="fas fa-print"></i> In hóa đơn</a>
             </div>
         </div>
     </div>
