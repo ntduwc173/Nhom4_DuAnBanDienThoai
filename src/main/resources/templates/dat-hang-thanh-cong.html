@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đặt hàng thành công - PhoneStore</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <div class="container header-inner">
+        <a href="/" class="logo">
+            <i class="fas fa-mobile-alt"></i>
+            <span>PhoneStore</span>
+        </a>
+        <nav class="nav">
+            <a th:href="@{/}" class="nav-link"><i class="fas fa-home"></i> Trang chủ</a>
+            <a th:href="@{/pre-order}" class="nav-link"><i class="fas fa-clock"></i> Pre-order</a>
+            <a th:href="@{/doi-tra}" class="nav-link"><i class="fas fa-exchange-alt"></i> Đổi trả</a>
+        </nav>
+        <a th:href="@{/gio-hang}" class="cart-icon" id="cartIcon">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-badge" th:text="${soLuongGioHang}" th:if="${soLuongGioHang > 0}">0</span>
+        </a>
+    </div>
+</header>
+
+<!-- SUCCESS CONTENT -->
+<section class="page-section">
+    <div class="container">
+        <div class="success-page">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h1>Đặt hàng thành công!</h1>
+            <p class="success-message">Cảm ơn bạn đã mua sắm tại PhoneStore</p>
+
+            <div class="order-info-card" th:if="${donHang != null}">
+                <div class="order-detail">
+                    <span>Mã đơn hàng:</span>
+                    <strong th:text="${donHang.maDonHang}">DH001</strong>
+                </div>
+                <div class="order-detail">
+                    <span>Trạng thái:</span>
+                    <span class="status-badge" th:text="${donHang.trangThai}">Chờ xử lý</span>
+                </div>
+                <div class="order-detail">
+                    <span>Phương thức thanh toán:</span>
+                    <strong th:text="${donHang.phuongThucThanhToan}">COD</strong>
+                </div>
+                <div class="order-detail">
+                    <span>Địa chỉ giao hàng:</span>
+                    <strong th:text="${donHang.diaChiNhanHang}">Địa chỉ</strong>
+                </div>
+
+                <!-- US07: Hiển thị giá cũ và giá mới nếu có giảm -->
+                <div class="order-detail total-row-final" th:if="${donHang.tongTien != null}">
+                    <span>Tổng thanh toán:</span>
+                    <div class="final-price-wrapper">
+                        <span class="price-old" th:if="${!#lists.isEmpty(donHang.donHangGiamGias)}" 
+                              th:with="discountTotal=${#aggregates.sum(donHang.donHangGiamGias.![soTienGiam])}"
+                              th:text="${#numbers.formatDecimal(donHang.tongTien + discountTotal, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                        </span>
+                        <strong class="total-price" th:text="${#numbers.formatDecimal(donHang.tongTien, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</strong>
+                    </div>
+                </div>
+
+                <div class="discount-list" th:if="${!#lists.isEmpty(donHang.donHangGiamGias)}">
+                    <p class="discount-title"><i class="fas fa-gift"></i> Khuyến mãi đã áp dụng:</p>
+                    <div class="discount-item" th:each="gg : ${donHang.donHangGiamGias}">
+                        <span th:text="${gg.maGiamGia.tenMa}">Tên mã</span>
+                        <span class="discount-val" th:text="'- ' + ${#numbers.formatDecimal(gg.soTienGiam, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></span>
+                    </div>
+                </div>
+
+                <!-- US05: Thông tin chuyển khoản nếu thanh toán bằng chuyển khoản -->
+                <div class="bank-info-success" th:if="${donHang.phuongThucThanhToan == 'Chuyển khoản'}">
+                    <h4><i class="fas fa-university"></i> Vui lòng chuyển khoản theo thông tin sau:</h4>
+                    <div class="bank-detail">
+                        <span>Ngân hàng:</span>
+                        <strong>Vietcombank</strong>
+                    </div>
+                    <div class="bank-detail">
+                        <span>Số tài khoản:</span>
+                        <strong>1234 5678 9012</strong>
+                    </div>
+                    <div class="bank-detail">
+                        <span>Chủ tài khoản:</span>
+                        <strong>PHONESTORE NHOM 4</strong>
+                    </div>
+                    <div class="bank-detail syntax-detail">
+                        <span>Cú pháp:</span>
+                        <strong th:text="'PHONESTORE ' + ${donHang.maDonHang}">PHONESTORE DH001</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="success-actions">
+                <a th:href="@{/}" class="btn btn-primary"><i class="fas fa-home"></i> Về trang chủ</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-bottom">
+            <p>&copy; 2026 PhoneStore - Nhóm 4. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

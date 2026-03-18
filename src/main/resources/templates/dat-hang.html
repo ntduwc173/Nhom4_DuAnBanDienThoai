@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đặt hàng - PhoneStore</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <div class="container header-inner">
+        <a href="/" class="logo">
+            <i class="fas fa-mobile-alt"></i>
+            <span>PhoneStore</span>
+        </a>
+        <nav class="nav">
+            <a th:href="@{/}" class="nav-link"><i class="fas fa-home"></i> Trang chủ</a>
+            <a th:href="@{/pre-order}" class="nav-link"><i class="fas fa-clock"></i> Pre-order</a>
+            <a th:href="@{/doi-tra}" class="nav-link"><i class="fas fa-exchange-alt"></i> Đổi trả</a>
+        </nav>
+        <a th:href="@{/gio-hang}" class="cart-icon" id="cartIcon">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-badge" th:text="${soLuongGioHang}" th:if="${soLuongGioHang > 0}">0</span>
+        </a>
+    </div>
+</header>
+
+<!-- CHECKOUT CONTENT -->
+<section class="page-section">
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-credit-card"></i> Đặt hàng</h1>
+            <a th:href="@{/gio-hang}" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Quay lại giỏ hàng</a>
+        </div>
+
+        <!-- Error -->
+        <div class="alert alert-error" th:if="${error}">
+            <i class="fas fa-exclamation-circle"></i>
+            <span th:text="${error}"></span>
+        </div>
+
+        <div class="checkout-layout">
+            <!-- US04: Form thông tin giao hàng -->
+            <div class="checkout-form-section">
+                <form th:action="@{/dat-hang/xac-nhan}" method="post" id="checkoutForm">
+                    <div class="form-card">
+                        <h3><i class="fas fa-user"></i> Thông tin giao nhận hàng</h3>
+
+                        <div class="form-group">
+                            <label for="tenKhach"><i class="fas fa-user"></i> Họ và tên <span class="required">*</span></label>
+                            <input type="text" id="tenKhach" name="tenKhach" placeholder="Nhập họ và tên" required>
+                            <span class="error-text" id="errorTen"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="soDienThoai"><i class="fas fa-phone"></i> Số điện thoại <span class="required">*</span></label>
+                            <input type="tel" id="soDienThoai" name="soDienThoai" placeholder="VD: 0912345678" required>
+                            <span class="error-text" id="errorSDT"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="diaChi"><i class="fas fa-map-marker-alt"></i> Địa chỉ chi tiết <span class="required">*</span></label>
+                            <textarea id="diaChi" name="diaChi" rows="3" placeholder="Nhập địa chỉ giao hàng chi tiết" required></textarea>
+                            <span class="error-text" id="errorDiaChi"></span>
+                        </div>
+                    </div>
+
+                    <!-- US05: Phương thức thanh toán -->
+                    <div class="form-card">
+                        <h3><i class="fas fa-wallet"></i> Phương thức thanh toán</h3>
+
+                        <div class="payment-options">
+                            <label class="payment-option">
+                                <input type="radio" name="phuongThucThanhToan" value="COD" checked onchange="togglePaymentInfo()">
+                                <div class="payment-card">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                    <div>
+                                        <strong>Trả tiền mặt (COD)</strong>
+                                        <p>Thanh toán khi nhận hàng</p>
+                                    </div>
+                                </div>
+                            </label>
+                            <label class="payment-option">
+                                <input type="radio" name="phuongThucThanhToan" value="Chuyển khoản" onchange="togglePaymentInfo()">
+                                <div class="payment-card">
+                                    <i class="fas fa-university"></i>
+                                    <div>
+                                        <strong>Chuyển khoản ngân hàng</strong>
+                                        <p>Chuyển khoản trước khi giao</p>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- US05: Thông tin chuyển khoản -->
+                        <div class="bank-info" id="bankInfo" style="display: none;">
+                            <div class="bank-info-card">
+                                <h4><i class="fas fa-info-circle"></i> Thông tin chuyển khoản</h4>
+                                <div class="bank-detail">
+                                    <span>Ngân hàng:</span>
+                                    <strong>Vietcombank</strong>
+                                </div>
+                                <div class="bank-detail">
+                                    <span>Số tài khoản:</span>
+                                    <strong>1234 5678 9012</strong>
+                                </div>
+                                <div class="bank-detail">
+                                    <span>Chủ tài khoản:</span>
+                                    <strong>PHONESTORE NHOM 4</strong>
+                                </div>
+                                <div class="bank-detail">
+                                    <span>Cú pháp:</span>
+                                    <strong class="syntax">PHONESTORE [Mã đơn hàng] [SĐT]</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- US06: Mã giảm giá -->
+                    <div class="form-card">
+                        <h3><i class="fas fa-tag"></i> Mã giảm giá</h3>
+                        <div class="discount-form">
+                            <input type="text" id="maGiamGiaInput" name="maGiamGia" placeholder="Nhập mã giảm giá">
+                            <button type="button" class="btn btn-secondary" onclick="kiemTraMaGiamGia()">
+                                <i class="fas fa-check"></i> Áp dụng
+                            </button>
+                        </div>
+                        <div id="discountResult" class="discount-result"></div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block btn-lg">
+                        <i class="fas fa-check-circle"></i> Xác nhận đặt hàng
+                    </button>
+                </form>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="checkout-summary">
+                <div class="summary-card sticky">
+                    <h3>Đơn hàng của bạn</h3>
+                    <div class="order-items">
+                        <div class="order-item" th:each="item : ${gioHangItems}">
+                            <img th:src="${item.sanPham.hinhAnh != null ? item.sanPham.hinhAnh : '/images/no-image.png'}"
+                                 th:alt="${item.sanPham.tenSanPham}" class="order-item-img">
+                            <div class="order-item-info">
+                                <p th:text="${item.sanPham.tenSanPham}">SP</p>
+                                <span th:text="'x' + ${item.soLuong}">x1</span>
+                            </div>
+                            <span class="order-item-price" th:text="${#numbers.formatDecimal(item.sanPham.gia * item.soLuong, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</span>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="summary-row">
+                        <span>Tạm tính</span>
+                        <span th:text="${#numbers.formatDecimal(tongTien, 0, 'COMMA', 0, 'POINT')} + ' ₫'" id="subtotalDisplay">0 ₫</span>
+                    </div>
+                    <div class="summary-row discount-row" id="discountRow" style="display: none;">
+                        <span>Giảm giá</span>
+                        <span class="discount-amount" id="discountAmount">- 0 ₫</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Phí vận chuyển</span>
+                        <span class="free-shipping">Miễn phí</span>
+                    </div>
+                    <hr>
+                    <div class="summary-row total-row">
+                        <span>Tổng cộng</span>
+                        <span class="total-price" id="totalDisplay" th:text="${#numbers.formatDecimal(tongTien, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-bottom">
+            <p>&copy; 2026 PhoneStore - Nhóm 4. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // US05: Toggle payment info
+    function togglePaymentInfo() {
+        const bankInfo = document.getElementById('bankInfo');
+        const selectedPayment = document.querySelector('input[name="phuongThucThanhToan"]:checked').value;
+        bankInfo.style.display = selectedPayment === 'Chuyển khoản' ? 'block' : 'none';
+    }
+
+    // US04: Form validation
+    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+        let valid = true;
+
+        const ten = document.getElementById('tenKhach').value.trim();
+        const sdt = document.getElementById('soDienThoai').value.trim();
+        const diachi = document.getElementById('diaChi').value.trim();
+
+        // Reset errors
+        document.getElementById('errorTen').textContent = '';
+        document.getElementById('errorSDT').textContent = '';
+        document.getElementById('errorDiaChi').textContent = '';
+
+        if (!ten) {
+            document.getElementById('errorTen').textContent = 'Vui lòng nhập họ và tên!';
+            valid = false;
+        }
+
+        const sdtRegex = /^(0[3|5|7|8|9])[0-9]{8}$/;
+        if (!sdt) {
+            document.getElementById('errorSDT').textContent = 'Vui lòng nhập số điện thoại!';
+            valid = false;
+        } else if (!sdtRegex.test(sdt)) {
+            document.getElementById('errorSDT').textContent = 'Số điện thoại không hợp lệ! (VD: 0912345678)';
+            valid = false;
+        }
+
+        if (!diachi) {
+            document.getElementById('errorDiaChi').textContent = 'Vui lòng nhập địa chỉ!';
+            valid = false;
+        }
+
+        if (!valid) {
+            e.preventDefault();
+        }
+    });
+
+    // US06: Kiểm tra mã giảm giá via AJAX
+    function kiemTraMaGiamGia() {
+        const maGiamGia = document.getElementById('maGiamGiaInput').value.trim();
+        const resultDiv = document.getElementById('discountResult');
+
+        if (!maGiamGia) {
+            resultDiv.innerHTML = '<p class="error-msg"><i class="fas fa-exclamation-circle"></i> Vui lòng nhập mã giảm giá!</p>';
+            return;
+        }
+
+        fetch('/dat-hang/kiem-tra-ma-giam-gia', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'maGiamGia=' + encodeURIComponent(maGiamGia)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                resultDiv.innerHTML = '<p class="success-msg"><i class="fas fa-check-circle"></i> Áp dụng thành công mã <strong>' + data.tenMa + '</strong>! Giảm ' + data.phanTramGiam + '% (-' + Number(data.soTienGiam).toLocaleString('vi-VN') + ' ₫)</p>';
+
+                // Update display
+                document.getElementById('discountRow').style.display = 'flex';
+                document.getElementById('discountAmount').textContent = '- ' + Number(data.soTienGiam).toLocaleString('vi-VN') + ' ₫';
+                document.getElementById('totalDisplay').textContent = Number(data.tongTienSauGiam).toLocaleString('vi-VN') + ' ₫';
+            } else {
+                resultDiv.innerHTML = '<p class="error-msg"><i class="fas fa-exclamation-circle"></i> ' + data.message + '</p>';
+            }
+        })
+        .catch(error => {
+            resultDiv.innerHTML = '<p class="error-msg"><i class="fas fa-exclamation-circle"></i> Lỗi khi kiểm tra mã giảm giá!</p>';
+        });
+    }
+</script>
+
+</body>
+</html>

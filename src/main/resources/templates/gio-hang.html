@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giỏ hàng - PhoneStore</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <div class="container header-inner">
+        <a href="/" class="logo">
+            <i class="fas fa-mobile-alt"></i>
+            <span>PhoneStore</span>
+        </a>
+        <nav class="nav">
+            <a th:href="@{/}" class="nav-link"><i class="fas fa-home"></i> Trang chủ</a>
+            <a th:href="@{/pre-order}" class="nav-link"><i class="fas fa-clock"></i> Pre-order</a>
+            <a th:href="@{/doi-tra}" class="nav-link"><i class="fas fa-exchange-alt"></i> Đổi trả</a>
+        </nav>
+        <a th:href="@{/gio-hang}" class="cart-icon active" id="cartIcon">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-badge" th:text="${soLuongGioHang}" th:if="${soLuongGioHang > 0}">0</span>
+        </a>
+    </div>
+</header>
+
+<!-- CART CONTENT -->
+<section class="page-section">
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-shopping-cart"></i> Giỏ hàng của bạn</h1>
+            <a th:href="@{/}" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Tiếp tục mua sắm</a>
+        </div>
+
+        <!-- Empty Cart -->
+        <div class="empty-state" th:if="${#lists.isEmpty(gioHangItems)}">
+            <i class="fas fa-shopping-cart"></i>
+            <h3>Giỏ hàng trống</h3>
+            <p>Bạn chưa thêm sản phẩm nào vào giỏ hàng.</p>
+            <a th:href="@{/}" class="btn btn-primary">Bắt đầu mua sắm</a>
+        </div>
+
+        <!-- Cart Items -->
+        <div class="cart-layout" th:unless="${#lists.isEmpty(gioHangItems)}">
+            <div class="cart-items">
+                <div class="cart-item" th:each="item : ${gioHangItems}">
+                    <div class="cart-item-image">
+                        <img th:src="${item.sanPham.hinhAnh != null ? item.sanPham.hinhAnh : '/images/no-image.png'}"
+                             th:alt="${item.sanPham.tenSanPham}">
+                    </div>
+                    <div class="cart-item-info">
+                        <h3 th:text="${item.sanPham.tenSanPham}">Tên SP</h3>
+                        <p class="cart-item-brand" th:if="${item.sanPham.hang != null}" th:text="${item.sanPham.hang.tenHang}">Hãng</p>
+                        <p class="cart-item-price" th:text="${#numbers.formatDecimal(item.sanPham.gia, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</p>
+                    </div>
+                    <div class="cart-item-qty">
+                        <form th:action="@{/gio-hang/cap-nhat}" method="post" class="qty-form">
+                            <input type="hidden" name="maCTGH" th:value="${item.maCTGH}">
+                            <button type="submit" name="soLuong" th:value="${item.soLuong - 1}" class="qty-btn">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <span class="qty-value" th:text="${item.soLuong}">1</span>
+                            <button type="submit" name="soLuong" th:value="${item.soLuong + 1}" class="qty-btn">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </form>
+                    </div>
+                    <div class="cart-item-total">
+                        <span th:text="${#numbers.formatDecimal(item.sanPham.gia * item.soLuong, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</span>
+                    </div>
+                    <form th:action="@{/gio-hang/xoa}" method="post">
+                        <input type="hidden" name="maCTGH" th:value="${item.maCTGH}">
+                        <button type="submit" class="btn-delete">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Cart Summary -->
+            <div class="cart-summary">
+                <div class="summary-card">
+                    <h3>Tóm tắt đơn hàng</h3>
+                    <div class="summary-row">
+                        <span>Tạm tính</span>
+                        <span th:text="${#numbers.formatDecimal(tongTien, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Phí vận chuyển</span>
+                        <span class="free-shipping">Miễn phí</span>
+                    </div>
+                    <hr>
+                    <div class="summary-row total-row">
+                        <span>Tổng cộng</span>
+                        <span class="total-price" th:text="${#numbers.formatDecimal(tongTien, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</span>
+                    </div>
+                    <a th:href="@{/dat-hang}" class="btn btn-primary btn-block">
+                        <i class="fas fa-credit-card"></i> Tiến hành đặt hàng
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-bottom">
+            <p>&copy; 2026 PhoneStore - Nhóm 4. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

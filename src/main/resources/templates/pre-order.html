@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pre-order - PhoneStore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header class="header">
+    <div class="container header-inner">
+        <a href="/" class="logo"><i class="fas fa-mobile-alt"></i><span>PhoneStore</span></a>
+        <nav class="nav">
+            <a th:href="@{/}" class="nav-link"><i class="fas fa-home"></i> Trang chủ</a>
+            <a th:href="@{/pre-order}" class="nav-link active"><i class="fas fa-clock"></i> Pre-order</a>
+            <a th:href="@{/doi-tra}" class="nav-link"><i class="fas fa-exchange-alt"></i> Đổi trả</a>
+        </nav>
+        <a th:href="@{/gio-hang}" class="cart-icon"><i class="fas fa-shopping-cart"></i>
+            <span class="cart-badge" th:text="${soLuongGioHang}" th:if="${soLuongGioHang > 0}">0</span></a>
+    </div>
+</header>
+<section class="page-section">
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-clock"></i> Sản phẩm Pre-order</h1>
+            <p class="page-subtitle">Đặt trước sản phẩm sắp ra mắt!</p>
+        </div>
+        <div class="preorder-notice">
+            <i class="fas fa-info-circle"></i>
+            <div><strong>Lưu ý:</strong><p>Pre-order bắt buộc thanh toán bằng <strong>Chuyển khoản</strong> để đặt cọc.</p></div>
+        </div>
+        <div class="empty-state" th:if="${#lists.isEmpty(preOrderProducts)}">
+            <i class="fas fa-clock"></i><h3>Chưa có sản phẩm Pre-order</h3>
+            <a th:href="@{/}" class="btn btn-primary">Xem sản phẩm khác</a>
+        </div>
+        <div class="product-grid" th:unless="${#lists.isEmpty(preOrderProducts)}">
+            <div class="product-card preorder-card" th:each="sp : ${preOrderProducts}">
+                <div class="product-labels"><span class="label label-preorder"><i class="fas fa-clock"></i> Pre-order</span></div>
+                <div class="product-image"><img th:src="${sp.hinhAnh != null ? sp.hinhAnh : '/images/no-image.png'}" th:alt="${sp.tenSanPham}"></div>
+                <div class="product-info">
+                    <h3 class="product-name" th:text="${sp.tenSanPham}">SP</h3>
+                    <p class="product-brand" th:if="${sp.hang != null}" th:text="${sp.hang.tenHang}">Hãng</p>
+                    <div class="product-price"><span class="price" th:text="${#numbers.formatDecimal(sp.gia, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</span></div>
+                </div>
+                <div class="product-actions">
+                    <button class="btn btn-preorder btn-block" onclick="openModal(this)" th:data-ma="${sp.maSanPham}" th:data-ten="${sp.tenSanPham}">
+                        <i class="fas fa-clock"></i> Đặt trước
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<div class="modal-overlay" id="preorderModal" style="display:none;">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+        <h2><i class="fas fa-clock"></i> Đặt trước</h2>
+        <p id="modalProductName" class="modal-product-name"></p>
+        <form method="post" th:action="@{/dat-hang/xac-nhan}">
+            <input type="hidden" id="modalMaSP" name="maSanPham">
+            <input type="hidden" name="phuongThucThanhToan" value="Chuyển khoản">
+            <div class="form-group"><label>Họ tên *</label><input type="text" name="tenKhach" required></div>
+            <div class="form-group"><label>SĐT *</label><input type="tel" name="soDienThoai" required></div>
+            <div class="form-group"><label>Địa chỉ *</label><textarea name="diaChi" rows="2" required></textarea></div>
+            <div class="bank-info-card">
+                <h4><i class="fas fa-university"></i> Chuyển khoản đặt cọc</h4>
+                <p>NH: Vietcombank | STK: 1234 5678 9012 | CTK: PHONESTORE NHOM 4</p>
+                <p>Cú pháp: PREORDER [SĐT]</p>
+            </div>
+            <button type="submit" class="btn btn-preorder btn-block"><i class="fas fa-check-circle"></i> Xác nhận</button>
+        </form>
+    </div>
+</div>
+<footer class="footer"><div class="container"><div class="footer-bottom"><p>&copy; 2026 PhoneStore - Nhóm 4</p></div></div></footer>
+<script>
+function openModal(btn){document.getElementById('modalProductName').textContent=btn.getAttribute('data-ten');document.getElementById('modalMaSP').value=btn.getAttribute('data-ma');document.getElementById('preorderModal').style.display='flex';}
+function closeModal(){document.getElementById('preorderModal').style.display='none';}
+document.getElementById('preorderModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+</script>
+</body>
+</html>

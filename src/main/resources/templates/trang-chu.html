@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhóm 4 - Bán Điện Thoại & Phụ Kiện</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <div class="container header-inner">
+        <a href="/" class="logo">
+            <i class="fas fa-mobile-alt"></i>
+            <span>PhoneStore</span>
+        </a>
+        <nav class="nav">
+            <a th:href="@{/}" class="nav-link active"><i class="fas fa-home"></i> Trang chủ</a>
+            <a th:href="@{/pre-order}" class="nav-link"><i class="fas fa-clock"></i> Pre-order</a>
+            <a th:href="@{/doi-tra}" class="nav-link"><i class="fas fa-exchange-alt"></i> Đổi trả</a>
+        </nav>
+        <a th:href="@{/gio-hang}" class="cart-icon" id="cartIcon">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-badge" th:text="${soLuongGioHang}" th:if="${soLuongGioHang > 0}">0</span>
+        </a>
+    </div>
+</header>
+
+<!-- TOAST NOTIFICATION -->
+<div class="toast-container" id="toastContainer">
+    <div class="toast success" th:if="${thongBaoGioHang}" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${thongBaoGioHang}"></span>
+    </div>
+    <div class="toast error" th:if="${loiGioHang}" id="toast">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${loiGioHang}"></span>
+    </div>
+</div>
+
+<!-- HERO BANNER -->
+<section class="hero">
+    <div class="hero-content">
+        <h1 class="hero-title">Điện Thoại & Phụ Kiện <span class="gradient-text">Chính Hãng</span></h1>
+        <p class="hero-subtitle">Khám phá bộ sưu tập điện thoại mới nhất với giá tốt nhất thị trường</p>
+        <a href="#products" class="btn btn-primary btn-lg">
+            <i class="fas fa-shopping-bag"></i> Mua sắm ngay
+        </a>
+    </div>
+</section>
+
+<!-- US02: BRAND FILTER -->
+<section class="filter-section" id="products">
+    <div class="container">
+        <h2 class="section-title">Lọc theo thương hiệu</h2>
+        <div class="brand-filters">
+            <a th:href="@{/}" class="brand-btn" th:classappend="${hangDaChon == null} ? 'active' : ''">
+                <i class="fas fa-th-large"></i> Tất cả
+            </a>
+            <a th:each="h : ${danhSachHang}"
+               th:href="@{/(hang=${h.maHang})}"
+               class="brand-btn"
+               th:classappend="${hangDaChon == h.maHang} ? 'active' : ''">
+                <span th:text="${h.tenHang}">Hãng</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- US01: PRODUCT GRID -->
+<section class="products-section">
+    <div class="container">
+        <div class="products-header">
+            <h2 class="section-title">Sản phẩm</h2>
+            <span class="product-count" th:text="'Tìm thấy ' + ${totalItems} + ' sản phẩm'"></span>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" th:if="${#lists.isEmpty(sanPhams)}">
+            <i class="fas fa-box-open"></i>
+            <h3>Không có sản phẩm</h3>
+            <p>Không tìm thấy sản phẩm nào cho bộ lọc hiện tại.</p>
+            <a th:href="@{/}" class="btn btn-primary">Xem tất cả sản phẩm</a>
+        </div>
+
+        <div class="product-grid" th:unless="${#lists.isEmpty(sanPhams)}">
+            <div class="product-card" th:each="sp : ${sanPhams}">
+                <!-- Label -->
+                <div class="product-labels">
+                    <span class="label label-new" th:if="${sp.loaiSanPham != null && sp.loaiSanPham.tenLoai == 'Điện thoại'}">
+                        <i class="fas fa-star"></i> Mới
+                    </span>
+                    <span class="label label-accessory" th:if="${sp.loaiSanPham != null && sp.loaiSanPham.tenLoai == 'Phụ kiện'}">
+                        <i class="fas fa-puzzle-piece"></i> Phụ kiện
+                    </span>
+                    <span class="label label-preorder" th:if="${sp.preOrder}">
+                        <i class="fas fa-clock"></i> Pre-order
+                    </span>
+                </div>
+
+                <!-- Image -->
+                <div class="product-image">
+                    <img th:src="${sp.hinhAnh != null ? sp.hinhAnh : '/images/no-image.png'}"
+                         th:alt="${sp.tenSanPham}"
+                         loading="lazy">
+                </div>
+
+                <!-- Info -->
+                <div class="product-info">
+                    <h3 class="product-name" th:text="${sp.tenSanPham}">Tên sản phẩm</h3>
+                    <p class="product-brand" th:if="${sp.hang != null}" th:text="${sp.hang.tenHang}">Hãng</p>
+                    <div class="product-price">
+                        <span class="price" th:text="${#numbers.formatDecimal(sp.gia, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</span>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="product-actions">
+                    <form th:if="${!sp.preOrder}" th:action="@{/gio-hang/them}" method="post" class="add-to-cart-form">
+                        <input type="hidden" name="maSanPham" th:value="${sp.maSanPham}">
+                        <input type="hidden" name="soLuong" value="1">
+                        <button type="submit" class="btn btn-cart">
+                            <i class="fas fa-cart-plus"></i> Thêm vào giỏ
+                        </button>
+                    </form>
+                    <a th:if="${sp.preOrder}" th:href="@{/pre-order}" class="btn btn-preorder">
+                        <i class="fas fa-clock"></i> Pre-order
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" th:if="${totalPages > 1}">
+            <a th:href="@{/(page=${currentPage - 1}, hang=${hangDaChon})}"
+               th:if="${currentPage > 0}"
+               class="page-btn">
+                <i class="fas fa-chevron-left"></i> Trước
+            </a>
+
+            <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                <a th:href="@{/(page=${i}, hang=${hangDaChon})}"
+                   class="page-btn"
+                   th:classappend="${i == currentPage} ? 'active' : ''"
+                   th:text="${i + 1}">1</a>
+            </span>
+
+            <a th:href="@{/(page=${currentPage + 1}, hang=${hangDaChon})}"
+               th:if="${currentPage < totalPages - 1}"
+               class="page-btn">
+                Tiếp <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3><i class="fas fa-mobile-alt"></i> PhoneStore</h3>
+                <p>Nhóm 4 - Dự án bán điện thoại và phụ kiện</p>
+            </div>
+            <div class="footer-links">
+                <a th:href="@{/}">Trang chủ</a>
+                <a th:href="@{/pre-order}">Pre-order</a>
+                <a th:href="@{/doi-tra}">Đổi trả</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 PhoneStore - Nhóm 4. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Auto-hide toast after 3 seconds
+    const toast = document.getElementById('toast');
+    if (toast) {
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+            toast.classList.add('hide');
+        }, 3000);
+    }
+
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+</script>
+
+</body>
+</html>
