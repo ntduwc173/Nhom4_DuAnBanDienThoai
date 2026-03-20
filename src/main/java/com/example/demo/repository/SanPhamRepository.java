@@ -22,4 +22,13 @@ public interface SanPhamRepository extends JpaRepository<SanPham, String> {
 
     // Lọc theo loại sản phẩm
     Page<SanPham> findByLoaiSanPham_MaLoai(String maLoai, Pageable pageable);
+
+    // Tìm kiếm theo tên sản phẩm
+    Page<SanPham> findByTenSanPhamContainingIgnoreCase(String tenSanPham, Pageable pageable);
+
+    // Tìm kiếm + lọc theo hãng
+    Page<SanPham> findByTenSanPhamContainingIgnoreCaseAndHang_MaHang(String tenSanPham, String maHang, Pageable pageable);
+
+    // Đếm theo hãng
+    long countByHang_MaHang(String maHang);
 }

@@ -40,6 +40,9 @@ public class SanPham {
     @Column(name = "HinhAnh", length = 500)
     private String hinhAnh;
 
+    @Column(name = "MoTa", length = 2000)
+    private String moTa;
+
     @Column(name = "PreOrder")
     private Boolean preOrder;
 

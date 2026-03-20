@@ -4,30 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đổi trả - PhoneStore</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
+
+<!-- HEADER -->
 <header class="header">
     <div class="container header-inner">
-        <a href="/" class="logo"><i class="fas fa-mobile-alt"></i><span>PhoneStore</span></a>
-        <nav class="nav">
-            <a th:href="@{/}" class="nav-link"><i class="fas fa-home"></i> Trang chủ</a>
-            <a th:href="@{/pre-order}" class="nav-link"><i class="fas fa-clock"></i> Pre-order</a>
-            <a th:href="@{/doi-tra}" class="nav-link active"><i class="fas fa-exchange-alt"></i> Đổi trả</a>
-            <a th:href="@{/bao-hanh}" class="nav-link"><i class="fas fa-shield-alt"></i> Bảo hành</a>
-        </nav>
-        <a th:href="@{/gio-hang}" class="cart-icon"><i class="fas fa-shopping-cart"></i>
-            <span class="cart-badge" th:text="${soLuongGioHang}" th:if="${soLuongGioHang > 0}">0</span></a>
+        <a href="/" class="logo">
+            <i class="fas fa-mobile-alt"></i>
+            <div><span>PhoneStore</span><span class="logo-text-sub">Nhóm 4</span></div>
+        </a>
+        <form class="search-bar" th:action="@{/}" method="get">
+            <i class="fas fa-search"></i>
+            <input type="text" name="tuKhoa" placeholder="Bạn muốn mua gì hôm nay?">
+        </form>
+        <div class="header-actions">
+            <a th:href="@{/gio-hang}" class="header-btn cart-btn">
+                <i class="fas fa-shopping-cart"></i><span>Giỏ hàng</span>
+                <span class="cart-badge" th:text="${soLuongGioHang}" th:if="${soLuongGioHang > 0}">0</span>
+            </a>
+            <div class="user-menu" th:if="${session.taiKhoan != null}">
+                <a href="#" class="header-btn"><i class="fas fa-user-circle"></i><span th:text="${session.tenNguoiDung}">User</span></a>
+                <div class="user-dropdown">
+                    <a th:href="@{/tai-khoan}"><i class="fas fa-user"></i> Tài khoản</a>
+                    <a th:href="@{/dang-xuat}"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+                </div>
+            </div>
+            <a th:href="@{/dang-nhap}" class="header-btn" th:if="${session.taiKhoan == null}">
+                <i class="fas fa-sign-in-alt"></i><span>Đăng nhập</span>
+            </a>
+        </div>
     </div>
 </header>
 
 <section class="page-section">
-    <div class="container">
+    <div class="container" style="max-width: 700px;">
         <div class="page-header">
-            <h1><i class="fas fa-exchange-alt"></i> Yêu cầu đổi trả</h1>
-            <p class="page-subtitle">Chỉ áp dụng cho đơn hàng đã hoàn thành</p>
+            <h1><i class="fas fa-exchange-alt" style="color: #d70018;"></i> Yêu cầu đổi trả</h1>
+            <a th:href="@{/}" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Trang chủ</a>
+        </div>
+
+        <!-- Chính sách -->
+        <div style="background: #fff3e0; border: 1px solid #ffe0b2; border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; display: flex; gap: 12px; align-items: flex-start;">
+            <i class="fas fa-info-circle" style="color: #e65100; font-size: 1.2rem; margin-top: 2px;"></i>
+            <div style="font-size: 0.88rem; color: #333;">
+                <strong style="color: #e65100;">Chính sách đổi trả</strong>
+                <p style="margin-top: 4px;">• Áp dụng cho đơn hàng đã <strong>hoàn thành</strong> trong vòng <strong>7 ngày</strong></p>
+                <p>• Sản phẩm phải nguyên seal, chưa kích hoạt bảo hành</p>
+                <p>• Nhập <strong>mã đơn hàng</strong> và <strong>số điện thoại</strong> để tìm đơn</p>
+            </div>
         </div>
 
         <!-- Success / Error messages -->
@@ -38,67 +67,69 @@
             <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
         </div>
 
-        <div class="return-layout">
-            <!-- Step 1: Tìm đơn hàng -->
-            <div class="form-card" th:if="${donHang == null}">
-                <h3><i class="fas fa-search"></i> Bước 1: Tìm đơn hàng</h3>
-                <form th:action="@{/doi-tra/tim-don}" method="post">
-                    <div class="form-group">
-                        <label for="maDonHang">Mã đơn hàng <span class="required">*</span></label>
-                        <input type="text" id="maDonHang" name="maDonHang" required placeholder="VD: DH1234567890">
-                    </div>
-                    <div class="form-group">
-                        <label for="soDienThoai">Số điện thoại <span class="required">*</span></label>
-                        <input type="tel" id="soDienThoai" name="soDienThoai" required placeholder="VD: 0912345678">
-                    </div>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-search"></i> Tìm đơn hàng
-                    </button>
-                </form>
-            </div>
+        <!-- Step 1: Tìm đơn hàng -->
+        <div class="form-card" th:if="${donHang == null}">
+            <h3><i class="fas fa-search" style="color: #d70018;"></i> Bước 1: Tìm đơn hàng</h3>
+            <form th:action="@{/doi-tra/tim-don}" method="post">
+                <div class="form-group">
+                    <label>Mã đơn hàng <span class="required">*</span></label>
+                    <input type="text" name="maDonHang" required placeholder="VD: DH1234567890">
+                </div>
+                <div class="form-group">
+                    <label>Số điện thoại <span class="required">*</span></label>
+                    <input type="tel" name="soDienThoai" required placeholder="VD: 0912345678">
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Tìm đơn hàng
+                </button>
+            </form>
+        </div>
 
-            <!-- Step 2: Chọn lý do và gửi yêu cầu -->
-            <div class="form-card" th:if="${donHang != null}">
-                <h3><i class="fas fa-check-circle"></i> Tìm thấy đơn hàng</h3>
-                <div class="order-info-card">
-                    <div class="order-detail">
-                        <span>Mã đơn:</span>
-                        <strong th:text="${donHang.maDonHang}">DH001</strong>
+        <!-- Step 2: Tìm thấy đơn - Gửi yêu cầu -->
+        <div class="form-card" th:if="${donHang != null}">
+            <h3 style="color: #2e7d32;"><i class="fas fa-check-circle"></i> Tìm thấy đơn hàng</h3>
+            <div style="background: #f5f5f5; border-radius: 10px; padding: 16px; margin-bottom: 20px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9rem;">
+                    <div><span style="color: #999;">Mã đơn:</span> <strong th:text="${donHang.maDonHang}">DH001</strong></div>
+                    <div><span style="color: #999;">Trạng thái:</span>
+                        <span style="background: #e8f5e9; color: #2e7d32; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600;"
+                              th:text="${donHang.trangThai}">Hoàn thành</span>
                     </div>
-                    <div class="order-detail">
-                        <span>Trạng thái:</span>
-                        <span class="status-badge status-done" th:text="${donHang.trangThai}">Hoàn thành</span>
+                    <div><span style="color: #999;">Tổng tiền:</span>
+                        <strong style="color: #d70018;" th:text="${#numbers.formatDecimal(donHang.tongTien, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</strong>
                     </div>
-                    <div class="order-detail">
-                        <span>Tổng tiền:</span>
-                        <strong th:text="${#numbers.formatDecimal(donHang.tongTien, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</strong>
+                    <div><span style="color: #999;">Ngày đặt:</span>
+                        <strong th:text="${#temporals.format(donHang.ngayDat, 'dd/MM/yyyy')}">01/01/2026</strong>
                     </div>
                 </div>
-
-                <h3 class="mt-20"><i class="fas fa-edit"></i> Bước 2: Lý do đổi trả</h3>
-                <form th:action="@{/doi-tra/gui-yeu-cau}" method="post">
-                    <input type="hidden" name="maDonHang" th:value="${donHang.maDonHang}">
-                    <div class="form-group">
-                        <label for="lyDo">Chọn lý do <span class="required">*</span></label>
-                        <select id="lyDo" name="lyDo" required class="form-select">
-                            <option value="">-- Chọn lý do đổi trả --</option>
-                            <option value="Sản phẩm lỗi/hỏng">Sản phẩm lỗi/hỏng</option>
-                            <option value="Sản phẩm không đúng mô tả">Sản phẩm không đúng mô tả</option>
-                            <option value="Giao sai sản phẩm">Giao sai sản phẩm</option>
-                            <option value="Không còn nhu cầu sử dụng">Không còn nhu cầu sử dụng</option>
-                            <option value="Đổi sang sản phẩm khác">Đổi sang sản phẩm khác</option>
-                            <option value="Lý do khác">Lý do khác</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-warning">
-                        <i class="fas fa-paper-plane"></i> Gửi yêu cầu đổi trả
-                    </button>
-                </form>
             </div>
+
+            <h3><i class="fas fa-edit" style="color: #d70018;"></i> Bước 2: Lý do đổi trả</h3>
+            <form th:action="@{/doi-tra/gui-yeu-cau}" method="post">
+                <input type="hidden" name="maDonHang" th:value="${donHang.maDonHang}">
+                <div class="form-group">
+                    <label>Chọn lý do <span class="required">*</span></label>
+                    <select name="lyDo" required style="width: 100%; padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem; font-family: inherit;">
+                        <option value="">-- Chọn lý do đổi trả --</option>
+                        <option value="Sản phẩm lỗi/hỏng">Sản phẩm lỗi/hỏng</option>
+                        <option value="Sản phẩm không đúng mô tả">Sản phẩm không đúng mô tả</option>
+                        <option value="Giao sai sản phẩm">Giao sai sản phẩm</option>
+                        <option value="Không còn nhu cầu sử dụng">Không còn nhu cầu sử dụng</option>
+                        <option value="Đổi sang sản phẩm khác">Đổi sang sản phẩm khác</option>
+                        <option value="Lý do khác">Lý do khác</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="background: #ff9800;">
+                    <i class="fas fa-paper-plane"></i> Gửi yêu cầu đổi trả
+                </button>
+            </form>
         </div>
     </div>
 </section>
 
-<footer class="footer"><div class="container"><div class="footer-bottom"><p>&copy; 2026 PhoneStore - Nhóm 4</p></div></div></footer>
+<footer class="footer">
+    <div class="container"><div class="footer-bottom"><p>&copy; 2026 PhoneStore - Nhóm 4. All rights reserved.</p></div></div>
+</footer>
+
 </body>
 </html>

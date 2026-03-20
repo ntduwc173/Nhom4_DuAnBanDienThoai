@@ -38,9 +38,13 @@
 <div class="admin-layout">
     <aside class="admin-sidebar">
         <h3>Quản trị</h3>
+        <a th:href="@{/admin/dashboard}" class="sidebar-link"><i class="fas fa-chart-pie"></i> Dashboard</a>
         <a th:href="@{/admin/san-pham}" class="sidebar-link"><i class="fas fa-box"></i> Sản phẩm</a>
-        <a th:href="@{/admin/giam-gia}" class="sidebar-link active"><i class="fas fa-tags"></i> Giảm giá</a>
         <a th:href="@{/admin/don-hang}" class="sidebar-link"><i class="fas fa-clipboard-list"></i> Đơn hàng</a>
+        <a th:href="@{/admin/giam-gia}" class="sidebar-link active"><i class="fas fa-ticket-alt"></i> Mã giảm giá</a>
+        <a th:href="@{/admin/khach-hang}" class="sidebar-link"><i class="fas fa-users"></i> Khách hàng</a>
+        <a th:href="@{/admin/doi-tra}" class="sidebar-link"><i class="fas fa-exchange-alt"></i> Đổi trả</a>
+        <a th:href="@{/admin/bao-hanh}" class="sidebar-link"><i class="fas fa-shield-alt"></i> Bảo hành</a>
         <h3 style="margin-top: 24px;">Cửa hàng</h3>
         <a th:href="@{/}" class="sidebar-link"><i class="fas fa-store"></i> Trang chủ Shop</a>
     </aside>

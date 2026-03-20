@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nhóm 4 - Bán Điện Thoại & Phụ Kiện</title>
+    <title>PhoneStore - Điện Thoại & Phụ Kiện Chính Hãng</title>
+    <meta name="description" content="PhoneStore - Mua điện thoại chính hãng giá tốt. iPhone, Samsung, Xiaomi, OPPO. Giao hàng miễn phí, bảo hành chính hãng.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -11,25 +12,115 @@
 </head>
 <body>
 
+<!-- TOP ANNOUNCEMENT BAR -->
+<div class="top-bar">
+    <div class="container">
+        <div class="top-bar-inner">
+            <span class="top-bar-item"><i class="fas fa-check-circle"></i> Hàng chính hãng - Xuất VAT đầy đủ</span>
+            <span class="top-bar-separator">•</span>
+            <span class="top-bar-item"><i class="fas fa-truck"></i> Giao nhanh - Miễn phí cho đơn 300k</span>
+            <span class="top-bar-separator">•</span>
+            <span class="top-bar-item"><i class="fas fa-exchange-alt"></i> Thu cũ giá ngon - Lên đời tiết kiệm</span>
+            <span class="top-bar-separator">•</span>
+            <span class="top-bar-item"><i class="fas fa-shield-alt"></i> Sản phẩm chính hãng</span>
+            <span class="top-bar-separator">•</span>
+            <span class="top-bar-item"><i class="fas fa-headset"></i> Hỗ trợ 24/7</span>
+        </div>
+    </div>
+</div>
+
 <!-- HEADER -->
 <header class="header">
     <div class="container header-inner">
+        <!-- Logo -->
         <a href="/" class="logo">
             <i class="fas fa-mobile-alt"></i>
-            <span>PhoneStore</span>
+            <div>
+                <span>PhoneStore</span>
+                <span class="logo-text-sub">Nhóm 4</span>
+            </div>
         </a>
-        <nav class="nav">
-            <a th:href="@{/}" class="nav-link active"><i class="fas fa-home"></i> Trang chủ</a>
-            <a th:href="@{/pre-order}" class="nav-link"><i class="fas fa-clock"></i> Pre-order</a>
-            <a th:href="@{/doi-tra}" class="nav-link"><i class="fas fa-exchange-alt"></i> Đổi trả</a>
-            <a th:href="@{/bao-hanh}" class="nav-link"><i class="fas fa-shield-alt"></i> Bảo hành</a>
-        </nav>
-        <a th:href="@{/gio-hang}" class="cart-icon" id="cartIcon">
-            <i class="fas fa-shopping-cart"></i>
-            <span class="cart-badge" th:text="${soLuongGioHang}" th:if="${soLuongGioHang > 0}">0</span>
-        </a>
+
+        <!-- Search Bar -->
+        <form class="search-bar" th:action="@{/}" method="get">
+            <i class="fas fa-search"></i>
+            <input type="text" name="tuKhoa" th:value="${tuKhoa}" placeholder="Bạn muốn mua gì hôm nay?" id="searchInput">
+        </form>
+
+        <!-- Header Actions -->
+        <div class="header-actions">
+            <!-- Giỏ hàng -->
+            <a th:href="@{/gio-hang}" class="header-btn cart-btn" id="cartIcon">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Giỏ hàng</span>
+                <span class="cart-badge" th:text="${soLuongGioHang}" th:if="${soLuongGioHang > 0}">0</span>
+            </a>
+
+            <!-- Đã đăng nhập -->
+            <div class="user-menu" th:if="${session.taiKhoan != null}">
+                <a href="#" class="header-btn">
+                    <i class="fas fa-user-circle"></i>
+                    <span th:text="${session.tenNguoiDung}">User</span>
+                </a>
+                <div class="user-dropdown">
+                    <a th:href="@{/admin/dashboard}" th:if="${session.vaiTro == 'ADMIN'}">
+                        <i class="fas fa-cogs"></i> Quản trị Admin
+                    </a>
+                    <div class="dropdown-divider" th:if="${session.vaiTro == 'ADMIN'}"></div>
+                    <a th:href="@{/don-hang}" th:if="${session.vaiTro == 'KHACH_HANG'}">
+                        <i class="fas fa-box"></i> Đơn hàng của tôi
+                    </a>
+                    <a th:href="@{/tai-khoan}">
+                        <i class="fas fa-user"></i> Thông tin tài khoản
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a th:href="@{/dang-xuat}">
+                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                    </a>
+                </div>
+            </div>
+
+            <!-- Chưa đăng nhập -->
+            <a th:href="@{/dang-nhap}" class="header-btn" th:if="${session.taiKhoan == null}">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Đăng nhập</span>
+            </a>
+
+            <a th:href="@{/dang-ky}" class="header-btn" th:if="${session.taiKhoan == null}"
+               style="background: rgba(255,255,255,0.95); color: #d70018; font-weight: 700;">
+                <i class="fas fa-user-plus"></i>
+                <span>Đăng ký</span>
+            </a>
+        </div>
     </div>
 </header>
+
+<!-- NAVIGATION BAR -->
+<nav class="nav-bar">
+    <div class="container nav-bar-inner">
+        <a th:href="@{/}" class="nav-link active">
+            <i class="fas fa-home"></i> Trang chủ
+        </a>
+        <a th:href="@{/}" class="nav-link">
+            <i class="fas fa-mobile-alt"></i> Điện thoại
+        </a>
+        <a th:href="@{/}" class="nav-link">
+            <i class="fas fa-headphones"></i> Phụ kiện
+        </a>
+        <a th:href="@{/pre-order}" class="nav-link">
+            <i class="fas fa-clock"></i> Pre-order
+        </a>
+        <a th:href="@{/doi-tra}" class="nav-link">
+            <i class="fas fa-exchange-alt"></i> Đổi trả
+        </a>
+        <a th:href="@{/bao-hanh}" class="nav-link">
+            <i class="fas fa-shield-alt"></i> Bảo hành
+        </a>
+        <a th:href="@{/admin/dashboard}" class="nav-link" th:if="${session.vaiTro == 'ADMIN'}">
+            <i class="fas fa-cogs"></i> Quản trị
+        </a>
+    </div>
+</nav>
 
 <!-- TOAST NOTIFICATION -->
 <div class="toast-container" id="toastContainer">
@@ -44,20 +135,56 @@
 </div>
 
 <!-- HERO BANNER -->
-<section class="hero">
-    <div class="hero-content">
-        <h1 class="hero-title">Điện Thoại & Phụ Kiện <span class="gradient-text">Chính Hãng</span></h1>
-        <p class="hero-subtitle">Khám phá bộ sưu tập điện thoại mới nhất với giá tốt nhất thị trường</p>
-        <a href="#products" class="btn btn-primary btn-lg">
-            <i class="fas fa-shopping-bag"></i> Mua sắm ngay
-        </a>
+<section class="hero" style="padding: 0; background: linear-gradient(135deg, #d70018 0%, #ff3333 50%, #ff6b35 100%); min-height: auto;">
+    <div class="container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0; align-items: stretch; padding: 0;">
+        <!-- Left Banner -->
+        <div style="padding: 48px 40px; color: white; display: flex; flex-direction: column; justify-content: center;">
+            <span style="background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; display: inline-block; width: fit-content; margin-bottom: 16px;">
+                <i class="fas fa-bolt"></i> HOT DEAL THÁNG 3
+            </span>
+            <h1 style="font-size: 2.2rem; font-weight: 800; line-height: 1.2; margin-bottom: 12px;">
+                Giảm đến <span style="color: #FFD700;">30%</span><br>Điện thoại chính hãng
+            </h1>
+            <p style="font-size: 1rem; opacity: 0.9; margin-bottom: 24px;">iPhone, Samsung, Xiaomi, OPPO - Giá tốt nhất thị trường. Bảo hành 12 tháng chính hãng.</p>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <a href="#products" class="btn" style="background: white; color: #d70018; font-weight: 700; padding: 12px 28px; border-radius: 8px; font-size: 0.95rem;">
+                    <i class="fas fa-fire"></i> Xem ngay
+                </a>
+                <a th:href="@{/pre-order}" class="btn" style="background: rgba(255,255,255,0.15); color: white; border: 2px solid rgba(255,255,255,0.5); padding: 12px 28px; border-radius: 8px; font-size: 0.95rem;">
+                    <i class="fas fa-clock"></i> Pre-order
+                </a>
+            </div>
+        </div>
+        <!-- Right Banner - Service Highlights -->
+        <div style="background: rgba(0,0,0,0.1); padding: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-content: center;">
+            <div style="background: rgba(255,255,255,0.15); border-radius: 12px; padding: 20px; text-align: center; color: white; backdrop-filter: blur(10px);">
+                <i class="fas fa-truck" style="font-size: 1.8rem; margin-bottom: 8px; display: block;"></i>
+                <strong style="font-size: 0.9rem;">Giao hàng miễn phí</strong>
+                <p style="font-size: 0.78rem; opacity: 0.8; margin-top: 4px;">Đơn từ 300k</p>
+            </div>
+            <div style="background: rgba(255,255,255,0.15); border-radius: 12px; padding: 20px; text-align: center; color: white; backdrop-filter: blur(10px);">
+                <i class="fas fa-shield-alt" style="font-size: 1.8rem; margin-bottom: 8px; display: block;"></i>
+                <strong style="font-size: 0.9rem;">Bảo hành 12 tháng</strong>
+                <p style="font-size: 0.78rem; opacity: 0.8; margin-top: 4px;">Chính hãng</p>
+            </div>
+            <div style="background: rgba(255,255,255,0.15); border-radius: 12px; padding: 20px; text-align: center; color: white; backdrop-filter: blur(10px);">
+                <i class="fas fa-exchange-alt" style="font-size: 1.8rem; margin-bottom: 8px; display: block;"></i>
+                <strong style="font-size: 0.9rem;">Đổi trả dễ dàng</strong>
+                <p style="font-size: 0.78rem; opacity: 0.8; margin-top: 4px;">Trong 7 ngày</p>
+            </div>
+            <div style="background: rgba(255,255,255,0.15); border-radius: 12px; padding: 20px; text-align: center; color: white; backdrop-filter: blur(10px);">
+                <i class="fas fa-percent" style="font-size: 1.8rem; margin-bottom: 8px; display: block;"></i>
+                <strong style="font-size: 0.9rem;">Giảm giá sốc</strong>
+                <p style="font-size: 0.78rem; opacity: 0.8; margin-top: 4px;">Mỗi ngày</p>
+            </div>
+        </div>
     </div>
 </section>
 
-<!-- US02: BRAND FILTER -->
+<!-- BRAND FILTER -->
 <section class="filter-section" id="products">
     <div class="container">
-        <h2 class="section-title">Lọc theo thương hiệu</h2>
+        <h2 class="section-title"><i class="fas fa-filter"></i> Lọc theo thương hiệu</h2>
         <div class="brand-filters">
             <a th:href="@{/}" class="brand-btn" th:classappend="${hangDaChon == null} ? 'active' : ''">
                 <i class="fas fa-th-large"></i> Tất cả
@@ -72,12 +199,27 @@
     </div>
 </section>
 
-<!-- US01: PRODUCT GRID -->
+<!-- PRODUCT GRID -->
 <section class="products-section">
     <div class="container">
         <div class="products-header">
-            <h2 class="section-title">Sản phẩm</h2>
-            <span class="product-count" th:text="'Tìm thấy ' + ${totalItems} + ' sản phẩm'"></span>
+            <h2 class="section-title">
+                <i class="fas fa-fire"></i>
+                <span th:if="${tuKhoa}" th:text="'Kết quả tìm kiếm: &quot;' + ${tuKhoa} + '&quot;'">Kết quả</span>
+                <span th:unless="${tuKhoa}">Sản phẩm nổi bật</span>
+            </h2>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span class="product-count" th:text="'Tìm thấy ' + ${totalItems} + ' sản phẩm'"></span>
+                <select class="form-select" id="sortSelect"
+                        style="padding: 8px 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 0.85rem; background: white; cursor: pointer;">
+                    <option value="" th:selected="${sapXep == null}">Mặc định</option>
+                    <option value="gia-tang" th:selected="${sapXep == 'gia-tang'}">Giá: Thấp → Cao</option>
+                    <option value="gia-giam" th:selected="${sapXep == 'gia-giam'}">Giá: Cao → Thấp</option>
+                    <option value="ten-az" th:selected="${sapXep == 'ten-az'}">Tên: A → Z</option>
+                    <option value="ten-za" th:selected="${sapXep == 'ten-za'}">Tên: Z → A</option>
+                    <option value="moi-nhat" th:selected="${sapXep == 'moi-nhat'}">Mới nhất</option>
+                </select>
+            </div>
         </div>
 
         <!-- Empty State -->
@@ -104,15 +246,17 @@
                 </div>
 
                 <!-- Image -->
-                <div class="product-image">
+                <a th:href="@{/san-pham/{id}(id=${sp.maSanPham})}" class="product-image">
                     <img th:src="${sp.hinhAnh != null ? sp.hinhAnh : '/images/no-image.png'}"
                          th:alt="${sp.tenSanPham}"
                          loading="lazy">
-                </div>
+                </a>
 
                 <!-- Info -->
                 <div class="product-info">
-                    <h3 class="product-name" th:text="${sp.tenSanPham}">Tên sản phẩm</h3>
+                    <a th:href="@{/san-pham/{id}(id=${sp.maSanPham})}" style="color: inherit;">
+                        <h3 class="product-name" th:text="${sp.tenSanPham}">Tên sản phẩm</h3>
+                    </a>
                     <p class="product-brand" th:if="${sp.hang != null}" th:text="${sp.hang.tenHang}">Hãng</p>
                     <div class="product-price">
                         <span class="price" th:text="${#numbers.formatDecimal(sp.gia, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</span>
@@ -137,20 +281,20 @@
 
         <!-- Pagination -->
         <div class="pagination" th:if="${totalPages > 1}">
-            <a th:href="@{/(page=${currentPage - 1}, hang=${hangDaChon})}"
+            <a th:href="@{/(page=${currentPage - 1}, hang=${hangDaChon}, tuKhoa=${tuKhoa}, sapXep=${sapXep})}"
                th:if="${currentPage > 0}"
                class="page-btn">
                 <i class="fas fa-chevron-left"></i> Trước
             </a>
 
             <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-                <a th:href="@{/(page=${i}, hang=${hangDaChon})}"
+                <a th:href="@{/(page=${i}, hang=${hangDaChon}, tuKhoa=${tuKhoa}, sapXep=${sapXep})}"
                    class="page-btn"
                    th:classappend="${i == currentPage} ? 'active' : ''"
                    th:text="${i + 1}">1</a>
             </span>
 
-            <a th:href="@{/(page=${currentPage + 1}, hang=${hangDaChon})}"
+            <a th:href="@{/(page=${currentPage + 1}, hang=${hangDaChon}, tuKhoa=${tuKhoa}, sapXep=${sapXep})}"
                th:if="${currentPage < totalPages - 1}"
                class="page-btn">
                 Tiếp <i class="fas fa-chevron-right"></i>
@@ -165,7 +309,13 @@
         <div class="footer-content">
             <div class="footer-brand">
                 <h3><i class="fas fa-mobile-alt"></i> PhoneStore</h3>
-                <p>Nhóm 4 - Dự án bán điện thoại và phụ kiện</p>
+                <p>Nhóm 4 - Dự án bán điện thoại và phụ kiện chính hãng</p>
+                <p style="margin-top: 8px; font-size: 0.82rem;">
+                    <i class="fas fa-phone" style="margin-right: 6px;"></i> 1800 2097 (Miễn phí)
+                </p>
+                <p style="font-size: 0.82rem;">
+                    <i class="fas fa-envelope" style="margin-right: 6px;"></i> support@phonestore.vn
+                </p>
             </div>
             <div class="footer-links">
                 <a th:href="@{/}">Trang chủ</a>
@@ -200,6 +350,20 @@
             });
         });
     });
+    // Sort dropdown
+    const sortSelect = document.getElementById('sortSelect');
+    if (sortSelect) {
+        sortSelect.addEventListener('change', function() {
+            const url = new URL(window.location.href);
+            if (this.value) {
+                url.searchParams.set('sapXep', this.value);
+            } else {
+                url.searchParams.delete('sapXep');
+            }
+            url.searchParams.set('page', '0');
+            window.location.href = url.toString();
+        });
+    }
 </script>
 
 </body>

@@ -17,6 +17,8 @@ public class DataInitializer implements CommandLineRunner {
     private final LoaiSanPhamRepository loaiSanPhamRepository;
     private final SanPhamRepository sanPhamRepository;
     private final MaGiamGiaRepository maGiamGiaRepository;
+    private final TaiKhoanRepository taiKhoanRepository;
+    private final KhachHangRepository khachHangRepository;
 
     @Override
     public void run(String... args) {
@@ -87,6 +89,44 @@ public class DataInitializer implements CommandLineRunner {
                 .tuDong(true)
                 .build());
 
+        // === Tạo tài khoản Admin ===
+        KhachHang adminKH = KhachHang.builder()
+                .maKhachHang("KH_ADMIN")
+                .ten("Quản trị viên")
+                .soDienThoai("0123456789")
+                .email("admin@phonestore.vn")
+                .diaChi("Hà Nội")
+                .build();
+        khachHangRepository.save(adminKH);
+
+        taiKhoanRepository.save(TaiKhoan.builder()
+                .maTaiKhoan("TK_ADMIN")
+                .tenDangNhap("admin")
+                .matKhau("admin123")
+                .khachHang(adminKH)
+                .vaiTro("ADMIN")
+                .build());
+
+        // === Tạo tài khoản Khách hàng mẫu ===
+        KhachHang sampleKH = KhachHang.builder()
+                .maKhachHang("KH_SAMPLE01")
+                .ten("Nguyễn Văn A")
+                .soDienThoai("0987654321")
+                .email("nguyenvana@email.com")
+                .diaChi("TP. Hồ Chí Minh")
+                .build();
+        khachHangRepository.save(sampleKH);
+
+        taiKhoanRepository.save(TaiKhoan.builder()
+                .maTaiKhoan("TK_SAMPLE01")
+                .tenDangNhap("khachhang")
+                .matKhau("123456")
+                .khachHang(sampleKH)
+                .vaiTro("KHACH_HANG")
+                .build());
+
         System.out.println("=== DỮ LIỆU MẪU ĐÃ ĐƯỢC KHỞI TẠO ===");
+        System.out.println("=== Tài khoản Admin: admin / admin123 ===");
+        System.out.println("=== Tài khoản Khách hàng: khachhang / 123456 ===");
     }
 }

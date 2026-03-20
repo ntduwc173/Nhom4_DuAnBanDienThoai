@@ -25,4 +25,8 @@ public class TaiKhoan {
 
     @Column(name = "MatKhau", length = 255)
     private String matKhau;
+
+    @Column(name = "VaiTro", length = 20)
+    @Builder.Default
+    private String vaiTro = "KHACH_HANG";
 }

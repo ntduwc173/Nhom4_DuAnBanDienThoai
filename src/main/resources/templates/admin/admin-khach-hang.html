@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý khách hàng - Admin PhoneStore</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <div class="container header-inner">
+        <a href="/" class="logo">
+            <i class="fas fa-mobile-alt"></i>
+            <div><span>PhoneStore</span><span class="logo-text-sub">Admin</span></div>
+        </a>
+        <div class="header-actions">
+            <a th:href="@{/}" class="header-btn"><i class="fas fa-store"></i><span>Cửa hàng</span></a>
+            <div class="user-menu">
+                <a href="#" class="header-btn"><i class="fas fa-user-circle"></i><span th:text="${session.tenNguoiDung}">Admin</span></a>
+                <div class="user-dropdown">
+                    <a th:href="@{/dang-xuat}"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <h3>Quản trị</h3>
+        <a th:href="@{/admin/dashboard}" class="sidebar-link"><i class="fas fa-chart-pie"></i> Dashboard</a>
+        <a th:href="@{/admin/san-pham}" class="sidebar-link"><i class="fas fa-box"></i> Sản phẩm</a>
+        <a th:href="@{/admin/don-hang}" class="sidebar-link"><i class="fas fa-shopping-bag"></i> Đơn hàng</a>
+        <a th:href="@{/admin/giam-gia}" class="sidebar-link"><i class="fas fa-ticket-alt"></i> Mã giảm giá</a>
+        <a th:href="@{/admin/khach-hang}" class="sidebar-link active"><i class="fas fa-users"></i> Khách hàng</a>
+        <a th:href="@{/admin/doi-tra}" class="sidebar-link"><i class="fas fa-exchange-alt"></i> Đổi trả</a>
+        <a th:href="@{/admin/bao-hanh}" class="sidebar-link"><i class="fas fa-shield-alt"></i> Bảo hành</a>
+        <h3 style="margin-top: 24px;">Cửa hàng</h3>
+        <a th:href="@{/}" class="sidebar-link"><i class="fas fa-store"></i> Trang chủ Shop</a>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-content">
+        <div class="admin-header">
+            <h1><i class="fas fa-users"></i> Quản lý khách hàng</h1>
+            <div class="admin-stats">
+                <span class="stat-badge total" th:text="'Tổng: ' + ${#lists.size(khachHangs)} + ' khách hàng'">Tổng</span>
+            </div>
+        </div>
+
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>Mã KH</th>
+                    <th>Họ tên</th>
+                    <th>Số điện thoại</th>
+                    <th>Email</th>
+                    <th>Địa chỉ</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="kh : ${khachHangs}">
+                    <td th:text="${kh.maKhachHang}">KH001</td>
+                    <td style="font-weight: 600;" th:text="${kh.ten}">Nguyễn Văn A</td>
+                    <td th:text="${kh.soDienThoai}">0987654321</td>
+                    <td th:text="${kh.email != null ? kh.email : 'N/A'}">email@example.com</td>
+                    <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                        th:text="${kh.diaChi != null ? kh.diaChi : 'N/A'}">Địa chỉ</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(khachHangs)}">
+                    <td colspan="5" style="text-align: center; padding: 32px; color: #999;">Chưa có khách hàng nào</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

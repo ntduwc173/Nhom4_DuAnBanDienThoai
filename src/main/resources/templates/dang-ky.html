@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký - PhoneStore</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="auth-page">
+    <div class="auth-container" style="max-width: 480px;">
+        <div class="auth-card">
+            <!-- Header -->
+            <div class="auth-header">
+                <a href="/" class="auth-logo">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>PhoneStore</span>
+                </a>
+                <h1>Tạo tài khoản</h1>
+                <p>Đăng ký để mua sắm và nhận ưu đãi</p>
+            </div>
+
+            <!-- Alert Messages -->
+            <div class="auth-alert error" th:if="${loi}">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${loi}"></span>
+            </div>
+
+            <!-- Register Form -->
+            <form class="auth-form" th:action="@{/dang-ky}" method="post">
+                <div class="form-group">
+                    <label for="hoTen">Họ và tên <span class="required">*</span></label>
+                    <div class="input-icon">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="hoTen" name="hoTen"
+                               placeholder="Nguyễn Văn A" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="soDienThoai">Số điện thoại <span class="required">*</span></label>
+                    <div class="input-icon">
+                        <i class="fas fa-phone"></i>
+                        <input type="tel" id="soDienThoai" name="soDienThoai"
+                               placeholder="0987654321" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <div class="input-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" name="email"
+                               placeholder="email@example.com">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="diaChi">Địa chỉ</label>
+                    <div class="input-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <input type="text" id="diaChi" name="diaChi"
+                               placeholder="Số nhà, đường, quận/huyện, tỉnh/thành">
+                    </div>
+                </div>
+
+                <div class="auth-divider">Thông tin đăng nhập</div>
+
+                <div class="form-group">
+                    <label for="tenDangNhap">Tên đăng nhập <span class="required">*</span></label>
+                    <div class="input-icon">
+                        <i class="fas fa-at"></i>
+                        <input type="text" id="tenDangNhap" name="tenDangNhap"
+                               placeholder="Nhập tên đăng nhập" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="matKhau">Mật khẩu <span class="required">*</span></label>
+                    <div class="input-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="matKhau" name="matKhau"
+                               placeholder="Tối thiểu 6 ký tự" required minlength="6">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="xacNhanMatKhau">Xác nhận mật khẩu <span class="required">*</span></label>
+                    <div class="input-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="xacNhanMatKhau" name="xacNhanMatKhau"
+                               placeholder="Nhập lại mật khẩu" required minlength="6">
+                    </div>
+                </div>
+
+                <button type="submit" class="auth-btn">
+                    <i class="fas fa-user-plus"></i> Đăng ký
+                </button>
+            </form>
+
+            <div class="auth-divider">hoặc</div>
+
+            <div class="auth-footer">
+                Đã có tài khoản?
+                <a th:href="@{/dang-nhap}">Đăng nhập ngay</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

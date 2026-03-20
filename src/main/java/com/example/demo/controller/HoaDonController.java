@@ -1,10 +1,10 @@
 package com.example.demo.controller;
 
-import com.example.demo.entity.ChiTietDonHang;
-import com.example.demo.entity.DonHang;
-import com.example.demo.entity.HoaDon;
+import com.example.demo.entity.*;
+import com.example.demo.service.DonHangService;
 import com.example.demo.service.GioHangService;
 import com.example.demo.service.HoaDonService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,7 +19,22 @@ import java.util.Optional;
 public class HoaDonController {
 
     private final HoaDonService hoaDonService;
+    private final DonHangService donHangService;
     private final GioHangService gioHangService;
+
+    // Danh sách đơn hàng của tôi
+    @GetMapping("")
+    public String danhSachDonHang(HttpSession session, Model model) {
+        TaiKhoan taiKhoan = (TaiKhoan) session.getAttribute("taiKhoan");
+        if (taiKhoan == null || taiKhoan.getKhachHang() == null) {
+            return "redirect:/dang-nhap";
+        }
+        String maKhachHang = taiKhoan.getKhachHang().getMaKhachHang();
+        List<DonHang> donHangs = donHangService.getDonHangByKhachHang(maKhachHang);
+        model.addAttribute("donHangs", donHangs);
+        model.addAttribute("soLuongGioHang", gioHangService.getSoLuongTrongGio());
+        return "don-hang";
+    }
 
     // US15: Trang chi tiết đơn hàng (có nút "In hóa đơn")
     @GetMapping("/chi-tiet/{maDonHang}")

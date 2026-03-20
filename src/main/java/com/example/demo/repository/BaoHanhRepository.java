@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface BaoHanhRepository extends JpaRepository<BaoHanh, String> {
     List<BaoHanh> findByDonHang_MaDonHang(String maDonHang);
+    List<BaoHanh> findAllByOrderByNgayYeuCauDesc();
 }

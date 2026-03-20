@@ -239,4 +239,9 @@ public class DonHangService {
         donHang.setDaThanhToan(daThanhToan);
         return donHangRepository.save(donHang);
     }
+
+    // Đơn hàng của tôi
+    public List<DonHang> getDonHangByKhachHang(String maKhachHang) {
+        return donHangRepository.findByKhachHang_MaKhachHangOrderByNgayDatDesc(maKhachHang);
+    }
 }

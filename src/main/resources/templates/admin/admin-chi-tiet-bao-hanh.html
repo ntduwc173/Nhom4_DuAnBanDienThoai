@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết Bảo Hành - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <style>
+        .info-card { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .info-card h4 { margin-top: 0; margin-bottom: 15px; font-size: 1.1rem; color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .info-row { display: flex; margin-bottom: 10px; }
+        .info-label { width: 150px; color: #666; font-weight: 500; }
+        .info-value { flex: 1; color: #333; font-weight: 600; }
+        .action-card { background: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <div class="container header-inner">
+        <a href="/admin/san-pham" class="logo"><i class="fas fa-cog"></i><span>Admin Panel</span></a>
+        <nav class="nav">
+            <a th:href="@{/admin/san-pham}" class="nav-link"><i class="fas fa-box"></i> Sản phẩm</a>
+            <a th:href="@{/admin/giam-gia}" class="nav-link"><i class="fas fa-tags"></i> Giảm giá</a>
+            <a th:href="@{/admin/don-hang}" class="nav-link"><i class="fas fa-clipboard-list"></i> Đơn hàng</a>
+        </nav>
+        <a th:href="@{/}" class="btn btn-outline btn-sm"><i class="fas fa-store"></i> Xem Shop</a>
+    </div>
+</header>
+
+<div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <h3>Quản trị</h3>
+        <a th:href="@{/admin/dashboard}" class="sidebar-link"><i class="fas fa-chart-pie"></i> Dashboard</a>
+        <a th:href="@{/admin/san-pham}" class="sidebar-link"><i class="fas fa-box"></i> Sản phẩm</a>
+        <a th:href="@{/admin/don-hang}" class="sidebar-link"><i class="fas fa-shopping-bag"></i> Đơn hàng</a>
+        <a th:href="@{/admin/giam-gia}" class="sidebar-link"><i class="fas fa-ticket-alt"></i> Mã giảm giá</a>
+        <a th:href="@{/admin/khach-hang}" class="sidebar-link"><i class="fas fa-users"></i> Khách hàng</a>
+        <a th:href="@{/admin/doi-tra}" class="sidebar-link"><i class="fas fa-exchange-alt"></i> Đổi trả</a>
+        <a th:href="@{/admin/bao-hanh}" class="sidebar-link active"><i class="fas fa-shield-alt"></i> Bảo hành</a>
+        <h3 style="margin-top: 24px;">Cửa hàng</h3>
+        <a th:href="@{/}" class="sidebar-link"><i class="fas fa-store"></i> Trang chủ Shop</a>
+    </aside>
+
+    <main class="admin-content">
+        <div class="admin-header">
+            <div>
+                <h1><i class="fas fa-shield-alt"></i> Chi tiết Bảo hành: <span th:text="${baoHanh.maBaoHanh}"></span></h1>
+            </div>
+            <a th:href="@{/admin/bao-hanh}" class="btn btn-secondary btn-sm" style="background:#eee; color:#333;"><i class="fas fa-arrow-left"></i> Quay lại</a>
+        </div>
+
+        <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+
+        <div class="row" style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <!-- Cột trái: Thông tin -->
+            <div style="flex: 2; min-width: 400px;">
+                <!-- Thông tin yêu cầu -->
+                <div class="info-card">
+                    <h4><i class="fas fa-clipboard-list"></i> Thông tin yêu cầu</h4>
+                    <div class="info-row">
+                        <div class="info-label">Mã bảo hành:</div>
+                        <div class="info-value" th:text="${baoHanh.maBaoHanh}"></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Ngày yêu cầu:</div>
+                        <div class="info-value" th:text="${#temporals.format(baoHanh.ngayYeuCau, 'dd/MM/yyyy HH:mm')}"></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Mô tả lỗi:</div>
+                        <div class="info-value" style="color: #d70018;" th:text="${baoHanh.moTaLoi}"></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Trạng thái hiện tại:</div>
+                        <div class="info-value">
+                            <span class="status" th:classappend="${baoHanh.trangThai == 'Chờ xử lý'} ? 'status-cho-xu-ly' : (${baoHanh.trangThai == 'Đã hoàn thành sửa chữa' || baoHanh.trangThai == 'Đã trả khách'} ? 'status-hoan-thanh' : (${baoHanh.trangThai == 'Từ chối bảo hành'} ? 'status-huy' : 'status-dang-ship'))" th:text="${baoHanh.trangThai}"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thông tin khách hàng & đơn hàng -->
+                <div class="info-card">
+                    <h4><i class="fas fa-user"></i> Người yêu cầu & Đơn hàng gốc</h4>
+                    <div class="info-row">
+                        <div class="info-label">Khách hàng:</div>
+                        <div class="info-value" th:text="${baoHanh.donHang.khachHang?.ten}"></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Số điện thoại:</div>
+                        <div class="info-value" th:text="${baoHanh.donHang.khachHang?.soDienThoai}"></div>
+                    </div>
+                    <div class="info-row" style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #eee;">
+                        <div class="info-label">Mã đơn hàng:</div>
+                        <div class="info-value">
+                            <a th:href="@{/admin/don-hang/chi-tiet/{id}(id=${baoHanh.donHang.maDonHang})}" style="font-weight: bold; text-decoration: underline;" th:text="${baoHanh.donHang.maDonHang}"></a>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Ngày đặt hàng:</div>
+                        <div class="info-value" th:text="${#temporals.format(baoHanh.donHang.ngayDat, 'dd/MM/yyyy HH:mm')}"></div>
+                    </div>
+                </div>
+
+                <!-- Sản phẩm trong đơn -->
+                <div class="info-card">
+                    <h4><i class="fas fa-box-open"></i> Sản phẩm trong đơn hàng</h4>
+                    <table class="admin-table" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th>SL</th>
+                                <th>Giá</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="ct : ${chiTietList}">
+                                <td>
+                                    <div style="display: flex; gap: 10px; align-items: center;">
+                                        <img th:if="${ct.sanPham.hinhAnh != null}" th:src="${ct.sanPham.hinhAnh}" style="width: 40px; height: 40px; border-radius: 4px; object-fit: cover;">
+                                        <strong th:text="${ct.sanPham.tenSanPham}">Tên SP</strong>
+                                    </div>
+                                </td>
+                                <td th:text="${ct.soLuong}"></td>
+                                <td class="price-text" th:text="${#numbers.formatDecimal(ct.gia, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Cột phải: Thao tác -->
+            <div style="flex: 1; min-width: 300px;">
+                <div class="action-card">
+                    <h4 style="margin-top: 0; margin-bottom: 15px; font-size: 1.1rem; color: #333; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
+                        <i class="fas fa-cog"></i> Cập nhật trạng thái
+                    </h4>
+                    
+                    <form th:action="@{/admin/bao-hanh/duyet}" method="post">
+                        <input type="hidden" name="maBaoHanh" th:value="${baoHanh.maBaoHanh}">
+                        
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Trạng thái xử lý:</label>
+                            <select name="trangThai" class="form-select" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #aaa;">
+                                <option value="Chờ xử lý" th:selected="${baoHanh.trangThai == 'Chờ xử lý'}">Chờ xử lý</option>
+                                <option value="Đã tiếp nhận" th:selected="${baoHanh.trangThai == 'Đã tiếp nhận'}">Đã tiếp nhận</option>
+                                <option value="Đang bảo hành" th:selected="${baoHanh.trangThai == 'Đang bảo hành'}">Đang bảo hành</option>
+                                <option value="Hoàn thành sửa chữa" th:selected="${baoHanh.trangThai == 'Hoàn thành sửa chữa'}">Hoàn thành sửa chữa</option>
+                                <option value="Đã trả khách" th:selected="${baoHanh.trangThai == 'Đã trả khách'}">Đã trả khách</option>
+                                <option value="Từ chối bảo hành" th:selected="${baoHanh.trangThai == 'Từ chối bảo hành'}">Từ chối bảo hành</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem; font-weight: bold;">
+                            <i class="fas fa-save"></i> Cập nhật thông tin
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

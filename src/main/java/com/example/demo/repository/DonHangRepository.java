@@ -17,4 +17,7 @@ public interface DonHangRepository extends JpaRepository<DonHang, String> {
 
     // US13: Lấy tất cả đơn hàng sắp xếp theo ngày mới nhất
     List<DonHang> findAllByOrderByNgayDatDesc();
+
+    // Đơn hàng của tôi (theo khách hàng)
+    List<DonHang> findByKhachHang_MaKhachHangOrderByNgayDatDesc(String maKhachHang);
 }

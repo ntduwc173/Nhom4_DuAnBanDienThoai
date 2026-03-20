@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - PhoneStore</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- Header -->
+            <div class="auth-header">
+                <a href="/" class="auth-logo">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>PhoneStore</span>
+                </a>
+                <h1>Đăng nhập</h1>
+                <p>Chào mừng bạn quay trở lại!</p>
+            </div>
+
+            <!-- Alert Messages -->
+            <div class="auth-alert error" th:if="${loi}">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${loi}"></span>
+            </div>
+
+            <div class="auth-alert success" th:if="${thanhCong}">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${thanhCong}"></span>
+            </div>
+
+            <!-- Login Form -->
+            <form class="auth-form" th:action="@{/dang-nhap}" method="post">
+                <div class="form-group">
+                    <label for="tenDangNhap">Tên đăng nhập</label>
+                    <div class="input-icon">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="tenDangNhap" name="tenDangNhap"
+                               placeholder="Nhập tên đăng nhập" required autofocus>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="matKhau">Mật khẩu</label>
+                    <div class="input-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="matKhau" name="matKhau"
+                               placeholder="Nhập mật khẩu" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="auth-btn">
+                    <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                </button>
+            </form>
+
+            <div class="auth-divider">hoặc</div>
+
+            <div class="auth-footer">
+                Chưa có tài khoản?
+                <a th:href="@{/dang-ky}">Đăng ký ngay</a>
+            </div>
+        </div>
+
+        <!-- Info -->
+        <div style="text-align: center; margin-top: 16px; font-size: 0.82rem; color: #999;">
+            <p>Tài khoản demo: <strong style="color:#d70018;">admin</strong> / admin123 (Admin)</p>
+            <p>Tài khoản demo: <strong style="color:#d70018;">khachhang</strong> / 123456 (Khách hàng)</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${sanPham.tenSanPham} + ' - PhoneStore'">Chi tiết sản phẩm</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <div class="container header-inner">
+        <a href="/" class="logo">
+            <i class="fas fa-mobile-alt"></i>
+            <div><span>PhoneStore</span><span class="logo-text-sub">Nhóm 4</span></div>
+        </a>
+        <form class="search-bar" th:action="@{/}" method="get">
+            <i class="fas fa-search"></i>
+            <input type="text" name="tuKhoa" placeholder="Bạn muốn mua gì hôm nay?">
+        </form>
+        <div class="header-actions">
+            <a th:href="@{/gio-hang}" class="header-btn cart-btn">
+                <i class="fas fa-shopping-cart"></i><span>Giỏ hàng</span>
+                <span class="cart-badge" th:text="${soLuongGioHang}" th:if="${soLuongGioHang > 0}">0</span>
+            </a>
+            <div class="user-menu" th:if="${session.taiKhoan != null}">
+                <a href="#" class="header-btn"><i class="fas fa-user-circle"></i><span th:text="${session.tenNguoiDung}">User</span></a>
+                <div class="user-dropdown">
+                    <a th:href="@{/tai-khoan}"><i class="fas fa-user"></i> Tài khoản</a>
+                    <a th:href="@{/dang-xuat}"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+                </div>
+            </div>
+            <a th:href="@{/dang-nhap}" class="header-btn" th:if="${session.taiKhoan == null}">
+                <i class="fas fa-sign-in-alt"></i><span>Đăng nhập</span>
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- PRODUCT DETAIL -->
+<section class="page-section">
+    <div class="container">
+        <!-- Breadcrumb -->
+        <div style="margin-bottom: 20px; font-size: 0.88rem; color: #999;">
+            <a th:href="@{/}" style="color: #d70018;">Trang chủ</a>
+            <span> / </span>
+            <span th:if="${sanPham.hang != null}" th:text="${sanPham.hang.tenHang}">Hãng</span>
+            <span> / </span>
+            <span th:text="${sanPham.tenSanPham}">SP</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;">
+            <!-- Ảnh sản phẩm -->
+            <div style="background: white; border-radius: 12px; padding: 32px; border: 1px solid #eee; text-align: center;">
+                <img th:src="${sanPham.hinhAnh != null ? sanPham.hinhAnh : '/images/no-image.png'}"
+                     th:alt="${sanPham.tenSanPham}"
+                     style="max-height: 400px; object-fit: contain; width: 100%;">
+                <div class="product-labels" style="position: static; margin-top: 16px; justify-content: center;">
+                    <span class="label label-new" th:if="${sanPham.loaiSanPham != null && sanPham.loaiSanPham.tenLoai == 'Điện thoại'}">
+                        <i class="fas fa-star"></i> Điện thoại
+                    </span>
+                    <span class="label label-accessory" th:if="${sanPham.loaiSanPham != null && sanPham.loaiSanPham.tenLoai == 'Phụ kiện'}">
+                        <i class="fas fa-puzzle-piece"></i> Phụ kiện
+                    </span>
+                    <span class="label label-preorder" th:if="${sanPham.preOrder}">
+                        <i class="fas fa-clock"></i> Pre-order
+                    </span>
+                </div>
+            </div>
+
+            <!-- Thông tin sản phẩm -->
+            <div>
+                <h1 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 8px;" th:text="${sanPham.tenSanPham}">Tên SP</h1>
+                <p style="color: #999; margin-bottom: 16px;">
+                    Hãng: <strong th:if="${sanPham.hang != null}" th:text="${sanPham.hang.tenHang}">Hãng</strong>
+                    <span th:if="${sanPham.loaiSanPham != null}"> | Loại: <strong th:text="${sanPham.loaiSanPham.tenLoai}">Loại</strong></span>
+                </p>
+
+                <!-- Giá -->
+                <div style="background: #fff5f5; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                    <span style="font-size: 1.8rem; font-weight: 800; color: #d70018;"
+                          th:text="${#numbers.formatDecimal(sanPham.gia, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</span>
+                </div>
+
+                <!-- Mô tả -->
+                <div th:if="${sanPham.moTa != null && !sanPham.moTa.isEmpty()}" style="margin-bottom: 20px;">
+                    <h3 style="font-size: 1rem; margin-bottom: 8px;"><i class="fas fa-info-circle" style="color: #d70018;"></i> Mô tả sản phẩm</h3>
+                    <p style="color: #555; line-height: 1.8;" th:text="${sanPham.moTa}">Mô tả</p>
+                </div>
+
+                <!-- Cấu hình -->
+                <div th:if="${sanPham.cauHinh != null}" style="margin-bottom: 24px;">
+                    <h3 style="font-size: 1rem; margin-bottom: 12px;"><i class="fas fa-microchip" style="color: #d70018;"></i> Thông số kỹ thuật</h3>
+                    <div style="background: white; border: 1px solid #eee; border-radius: 8px; overflow: hidden;">
+                        <div style="display: flex; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid #f0f0f0;" th:if="${sanPham.cauHinh.cpu != null}">
+                            <span style="color: #999;">CPU</span>
+                            <span style="font-weight: 600;" th:text="${sanPham.cauHinh.cpu}">CPU</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid #f0f0f0;" th:if="${sanPham.cauHinh.ram != null}">
+                            <span style="color: #999;">RAM</span>
+                            <span style="font-weight: 600;" th:text="${sanPham.cauHinh.ram}">RAM</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid #f0f0f0;" th:if="${sanPham.cauHinh.boNhoTrong != null}">
+                            <span style="color: #999;">Bộ nhớ trong</span>
+                            <span style="font-weight: 600;" th:text="${sanPham.cauHinh.boNhoTrong}">128GB</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid #f0f0f0;" th:if="${sanPham.cauHinh.manHinh != null}">
+                            <span style="color: #999;">Màn hình</span>
+                            <span style="font-weight: 600;" th:text="${sanPham.cauHinh.manHinh}">6.7"</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid #f0f0f0;" th:if="${sanPham.cauHinh.camera != null}">
+                            <span style="color: #999;">Camera</span>
+                            <span style="font-weight: 600;" th:text="${sanPham.cauHinh.camera}">48MP</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid #f0f0f0;" th:if="${sanPham.cauHinh.pin != null}">
+                            <span style="color: #999;">Pin</span>
+                            <span style="font-weight: 600;" th:text="${sanPham.cauHinh.pin}">5000mAh</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 10px 16px;" th:if="${sanPham.cauHinh.heDieuHanh != null}">
+                            <span style="color: #999;">Hệ điều hành</span>
+                            <span style="font-weight: 600;" th:text="${sanPham.cauHinh.heDieuHanh}">Android</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div style="display: flex; gap: 12px;">
+                    <form th:if="${!sanPham.preOrder}" th:action="@{/gio-hang/them}" method="post" style="flex: 1;">
+                        <input type="hidden" name="maSanPham" th:value="${sanPham.maSanPham}">
+                        <input type="hidden" name="soLuong" value="1">
+                        <button type="submit" class="btn btn-primary btn-lg btn-block">
+                            <i class="fas fa-cart-plus"></i> Thêm vào giỏ hàng
+                        </button>
+                    </form>
+                    <a th:if="${sanPham.preOrder}" th:href="@{/pre-order}" class="btn btn-preorder btn-lg" style="flex: 1; text-align: center;">
+                        <i class="fas fa-clock"></i> Pre-order ngay
+                    </a>
+                    <a th:href="@{/}" class="btn btn-outline btn-lg">
+                        <i class="fas fa-arrow-left"></i> Quay lại
+                    </a>
+                </div>
+
+                <!-- Cam kết -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px;">
+                    <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background: #f8f8f8; border-radius: 8px;">
+                        <i class="fas fa-shield-alt" style="color: #d70018; font-size: 1.2rem;"></i>
+                        <div><strong style="font-size: 0.82rem;">Bảo hành chính hãng</strong><br><span style="font-size: 0.78rem; color: #999;">12 tháng</span></div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background: #f8f8f8; border-radius: 8px;">
+                        <i class="fas fa-truck" style="color: #d70018; font-size: 1.2rem;"></i>
+                        <div><strong style="font-size: 0.82rem;">Miễn phí giao hàng</strong><br><span style="font-size: 0.78rem; color: #999;">Đơn từ 300k</span></div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background: #f8f8f8; border-radius: 8px;">
+                        <i class="fas fa-exchange-alt" style="color: #d70018; font-size: 1.2rem;"></i>
+                        <div><strong style="font-size: 0.82rem;">Đổi trả dễ dàng</strong><br><span style="font-size: 0.78rem; color: #999;">Trong 7 ngày</span></div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background: #f8f8f8; border-radius: 8px;">
+                        <i class="fas fa-check-circle" style="color: #d70018; font-size: 1.2rem;"></i>
+                        <div><strong style="font-size: 0.82rem;">Sản phẩm chính hãng</strong><br><span style="font-size: 0.78rem; color: #999;">100% nguyên seal</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-bottom">
+            <p>&copy; 2026 PhoneStore - Nhóm 4. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

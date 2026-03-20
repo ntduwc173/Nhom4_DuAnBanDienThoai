@@ -16,20 +16,43 @@
     <div class="container header-inner">
         <a href="/" class="logo">
             <i class="fas fa-mobile-alt"></i>
-            <span>PhoneStore</span>
+            <div>
+                <span>PhoneStore</span>
+                <span class="logo-text-sub">Nhóm 4</span>
+            </div>
         </a>
-        <nav class="nav">
-            <a th:href="@{/}" class="nav-link"><i class="fas fa-home"></i> Trang chủ</a>
-            <a th:href="@{/pre-order}" class="nav-link"><i class="fas fa-clock"></i> Pre-order</a>
-            <a th:href="@{/doi-tra}" class="nav-link"><i class="fas fa-exchange-alt"></i> Đổi trả</a>
-            <a th:href="@{/bao-hanh}" class="nav-link"><i class="fas fa-shield-alt"></i> Bảo hành</a>
-        </nav>
-        <a th:href="@{/gio-hang}" class="cart-icon active" id="cartIcon">
-            <i class="fas fa-shopping-cart"></i>
-            <span class="cart-badge" th:text="${soLuongGioHang}" th:if="${soLuongGioHang > 0}">0</span>
-        </a>
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Bạn muốn mua gì hôm nay?">
+        </div>
+        <div class="header-actions">
+            <a th:href="@{/gio-hang}" class="header-btn cart-btn" id="cartIcon">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Giỏ hàng</span>
+                <span class="cart-badge" th:text="${soLuongGioHang}" th:if="${soLuongGioHang > 0}">0</span>
+            </a>
+            <div class="user-menu" th:if="${session.taiKhoan != null}">
+                <a href="#" class="header-btn">
+                    <i class="fas fa-user-circle"></i>
+                    <span th:text="${session.tenNguoiDung}">User</span>
+                </a>
+                <div class="user-dropdown">
+                    <a th:href="@{/admin/san-pham}" th:if="${session.vaiTro == 'ADMIN'}">
+                        <i class="fas fa-cogs"></i> Quản trị Admin
+                    </a>
+                    <a th:href="@{/dang-xuat}">
+                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                    </a>
+                </div>
+            </div>
+            <a th:href="@{/dang-nhap}" class="header-btn" th:if="${session.taiKhoan == null}">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Đăng nhập</span>
+            </a>
+        </div>
     </div>
 </header>
+
 
 <!-- CART CONTENT -->
 <section class="page-section">
