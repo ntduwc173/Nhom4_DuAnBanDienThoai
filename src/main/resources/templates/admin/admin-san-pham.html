@@ -69,6 +69,20 @@
             </div>
         </div>
 
+        <!-- Bộ lọc nhanh -->
+        <div style="display: flex; gap: 12px; margin-bottom: 20px; align-items: center;">
+            <div style="font-size: 0.85rem; color: #666; font-weight: 600;">Lọc nhanh:</div>
+            <div style="display: flex; gap: 8px;">
+                <button class="filter-badge-admin active" onclick="filterTable('all')">Tất cả</button>
+                <button class="filter-badge-admin" onclick="filterTable('thuong')" style="background: rgba(0, 131, 143, 0.1); color: #00838f;">
+                    <i class="fas fa-box"></i> Thường
+                </button>
+                <button class="filter-badge-admin" onclick="filterTable('preorder')" style="background: rgba(198, 40, 40, 0.1); color: #c62828;">
+                    <i class="fas fa-clock"></i> Pre-order
+                </button>
+            </div>
+        </div>
+
         <!-- Bảng sản phẩm -->
         <div class="admin-table-wrapper">
             <table class="admin-table">
@@ -79,6 +93,7 @@
                         <th>Hãng</th>
                         <th>Loại</th>
                         <th>Giá</th>
+                        <th>Tồn kho</th>
                         <th>Pre-order</th>
                         <th>Thao tác</th>
                     </tr>
@@ -95,8 +110,16 @@
                         <td th:text="${sp.loaiSanPham != null ? sp.loaiSanPham.tenLoai : 'N/A'}">Loại</td>
                         <td class="price-text" th:text="${sp.gia != null ? #numbers.formatDecimal(sp.gia, 0, 'COMMA', 0, 'POINT') + ' ₫' : 'N/A'}">0 ₫</td>
                         <td>
-                            <span class="type-badge type-preorder" th:if="${sp.preOrder}">Pre-order</span>
-                            <span class="type-badge type-thuong" th:unless="${sp.preOrder}">Thường</span>
+                            <span th:text="${sp.soLuong != null ? sp.soLuong : 0}" 
+                                  th:style="${sp.soLuong != null && sp.soLuong > 0 ? 'color: #2e7d32; font-weight: 600;' : 'color: #c62828; font-weight: 600;'}">0</span>
+                        </td>
+                        <td th:class="${sp.preOrder ? 'row-preorder' : 'row-thuong'}">
+                            <span class="type-badge type-preorder" th:if="${sp.preOrder}">
+                                <i class="fas fa-clock"></i> Pre-order
+                            </span>
+                            <span class="type-badge type-thuong" th:unless="${sp.preOrder}">
+                                <i class="fas fa-check"></i> Thường
+                            </span>
                         </td>
                         <td>
                             <div class="action-btns">
@@ -107,6 +130,8 @@
                                         th:data-gia="${sp.gia != null ? sp.gia : 0}"
                                         th:data-loai="${sp.loaiSanPham != null ? sp.loaiSanPham.maLoai : ''}"
                                         th:data-anh="${sp.hinhAnh != null ? sp.hinhAnh : ''}"
+                                        th:data-mota="${sp.moTa != null ? sp.moTa : ''}"
+                                        th:data-soluong="${sp.soLuong != null ? sp.soLuong : 0}"
                                         th:data-preorder="${sp.preOrder != null ? sp.preOrder : false}"
                                         onclick="openEditModalFromData(this)">
                                     <i class="fas fa-edit"></i>
@@ -159,6 +184,14 @@
                 <input type="text" name="hinhAnh" placeholder="https://example.com/image.jpg">
             </div>
             <div class="form-group">
+                <label>Mô tả sản phẩm</label>
+                <textarea name="moTa" rows="3" placeholder="Nhập mô tả chi tiết sản phẩm..." style="width:100%; padding:8px 12px; border:1px solid #ddd; border-radius:8px; font-family:inherit; resize:vertical;"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Số lượng tồn kho</label>
+                <input type="number" name="soLuong" min="0" value="0" placeholder="VD: 100">
+            </div>
+            <div class="form-group">
                 <div class="checkbox-wrapper">
                     <input type="checkbox" name="preOrder" value="true" id="addPreOrder">
                     <label for="addPreOrder">Sản phẩm Pre-order</label>
@@ -207,6 +240,14 @@
                 <input type="text" name="hinhAnh" id="editHinhAnh">
             </div>
             <div class="form-group">
+                <label>Mô tả sản phẩm</label>
+                <textarea name="moTa" id="editMoTa" rows="3" style="width:100%; padding:8px 12px; border:1px solid #ddd; border-radius:8px; font-family:inherit; resize:vertical;"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Số lượng tồn kho</label>
+                <input type="number" name="soLuong" id="editSoLuong" min="0">
+            </div>
+            <div class="form-group">
                 <div class="checkbox-wrapper">
                     <input type="checkbox" name="preOrder" value="true" id="editPreOrder">
                     <label for="editPreOrder">Sản phẩm Pre-order</label>
@@ -229,8 +270,30 @@
         document.getElementById('editGia').value = btn.getAttribute('data-gia');
         document.getElementById('editMaLoai').value = btn.getAttribute('data-loai');
         document.getElementById('editHinhAnh').value = btn.getAttribute('data-anh');
+        document.getElementById('editMoTa').value = btn.getAttribute('data-mota');
+        document.getElementById('editSoLuong').value = btn.getAttribute('data-soluong');
         document.getElementById('editPreOrder').checked = btn.getAttribute('data-preorder') === 'true';
         document.getElementById('editModal').classList.add('show');
+    }
+
+    function filterTable(type) {
+        const rows = document.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            const preorderCell = row.querySelector('.row-preorder');
+            const thuongCell = row.querySelector('.row-thuong');
+            
+            if (type === 'all') {
+                row.style.display = '';
+            } else if (type === 'preorder') {
+                row.style.display = preorderCell ? '' : 'none';
+            } else if (type === 'thuong') {
+                row.style.display = thuongCell ? '' : 'none';
+            }
+        });
+        
+        // Update active class
+        document.querySelectorAll('.filter-badge-admin').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
     }
     
     function closeModal(id) { document.getElementById(id).classList.remove('show'); }
@@ -247,6 +310,16 @@
         setTimeout(() => { toast.classList.remove('show'); toast.classList.add('hide'); }, 3000);
     }
 </script>
+
+<style>
+    .filter-badge-admin {
+        padding: 6px 14px; border: none; border-radius: 20px; font-size: 0.82rem; font-weight: 600;
+        background: #f5f5f5; color: #666; cursor: pointer; transition: all 0.2s;
+        display: flex; align-items: center; gap: 6px;
+    }
+    .filter-badge-admin:hover { filter: brightness(0.95); }
+    .filter-badge-admin.active { background: #d70018 !important; color: white !important; }
+</style>
 
 </body>
 </html>

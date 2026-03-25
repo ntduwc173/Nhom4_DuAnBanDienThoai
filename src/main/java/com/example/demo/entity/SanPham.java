@@ -46,6 +46,9 @@ public class SanPham {
     @Column(name = "PreOrder")
     private Boolean preOrder;
 
+    @Column(name = "SoLuong")
+    private Integer soLuong;
+
     // Một sản phẩm có nhiều chi tiết đơn hàng
     @OneToMany(mappedBy = "sanPham", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ChiTietDonHang> chiTietDonHangs;

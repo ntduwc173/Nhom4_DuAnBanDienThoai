@@ -53,8 +53,24 @@
     </div>
 </header>
 
+<!-- TOAST NOTIFICATION -->
+<div class="toast-container" id="toastContainer">
+    <div class="toast error" th:if="${loiGioHang}" id="toast">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${loiGioHang}"></span>
+    </div>
+</div>
 
-<!-- CART CONTENT -->
+<script>
+    const toast = document.getElementById('toast');
+    if (toast) {
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+            toast.classList.add('hide');
+        }, 4000);
+    }
+</script>
 <section class="page-section">
     <div class="container">
         <div class="page-header">

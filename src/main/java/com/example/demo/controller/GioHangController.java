@@ -24,14 +24,15 @@ public class GioHangController {
     @PostMapping("/them")
     public String themVaoGioHang(@RequestParam String maSanPham,
                                   @RequestParam(defaultValue = "1") int soLuong,
-                                  RedirectAttributes redirectAttributes) {
-        boolean result = gioHangService.themVaoGioHang(maSanPham, soLuong);
-        if (result) {
+                                  RedirectAttributes redirectAttributes,
+                                  @RequestHeader(value = "referer", required = false) String referer) {
+        try {
+            gioHangService.themVaoGioHang(maSanPham, soLuong);
             redirectAttributes.addFlashAttribute("thongBaoGioHang", "Thêm vào giỏ hàng thành công!");
-        } else {
-            redirectAttributes.addFlashAttribute("loiGioHang", "Không tìm thấy sản phẩm!");
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("loiGioHang", e.getMessage());
         }
-        return "redirect:/";
+        return "redirect:" + (referer != null ? referer : "/");
     }
 
     // Xem giỏ hàng
@@ -57,8 +58,13 @@ public class GioHangController {
     // Cập nhật số lượng
     @PostMapping("/cap-nhat")
     public String capNhatSoLuong(@RequestParam String maCTGH,
-                                  @RequestParam int soLuong) {
-        gioHangService.capNhatSoLuong(maCTGH, soLuong);
+                                  @RequestParam int soLuong,
+                                  RedirectAttributes redirectAttributes) {
+        try {
+            gioHangService.capNhatSoLuong(maCTGH, soLuong);
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("loiGioHang", e.getMessage());
+        }
         return "redirect:/gio-hang";
     }
 

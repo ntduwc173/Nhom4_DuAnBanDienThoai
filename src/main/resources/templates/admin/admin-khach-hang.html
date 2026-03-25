@@ -31,6 +31,16 @@
     </div>
 </header>
 
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer">
+    <div class="toast success" th:if="${success}" id="toastSuccess">
+        <i class="fas fa-check-circle"></i><span th:text="${success}"></span>
+    </div>
+    <div class="toast error" th:if="${error}" id="toastError">
+        <i class="fas fa-exclamation-circle"></i><span th:text="${error}"></span>
+    </div>
+</div>
+
 <div class="admin-layout">
     <!-- Sidebar -->
     <aside class="admin-sidebar">
@@ -50,8 +60,19 @@
     <main class="admin-content">
         <div class="admin-header">
             <h1><i class="fas fa-users"></i> Quản lý khách hàng</h1>
-            <div class="admin-stats">
-                <span class="stat-badge total" th:text="'Tổng: ' + ${#lists.size(khachHangs)} + ' khách hàng'">Tổng</span>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <!-- Tìm kiếm -->
+                <form th:action="@{/admin/khach-hang}" method="get" style="display: flex; gap: 8px;">
+                    <input type="text" name="tuKhoa" th:value="${tuKhoa}" placeholder="Tìm theo tên hoặc SĐT..."
+                           style="padding: 8px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.85rem; width: 250px;">
+                    <button type="submit" class="btn btn-sm" style="background: #d70018; color: white; border: none; border-radius: 8px; padding: 8px 16px;">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+                <button class="btn btn-sm" style="background: #d70018; color: white;" onclick="document.getElementById('addModal').style.display='flex'">
+                    <i class="fas fa-plus"></i> Thêm KH
+                </button>
+                <span class="stat-badge total" th:text="'Tổng: ' + ${khachHangs != null ? #lists.size(khachHangs) : 0} + ' khách hàng'">Tổng</span>
             </div>
         </div>
 
@@ -64,25 +85,142 @@
                     <th>Số điện thoại</th>
                     <th>Email</th>
                     <th>Địa chỉ</th>
+                    <th>Thao tác</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="kh : ${khachHangs}">
-                    <td th:text="${kh.maKhachHang}">KH001</td>
+                    <td><code th:text="${kh.maKhachHang}">KH001</code></td>
                     <td style="font-weight: 600;" th:text="${kh.ten}">Nguyễn Văn A</td>
                     <td th:text="${kh.soDienThoai}">0987654321</td>
                     <td th:text="${kh.email != null ? kh.email : 'N/A'}">email@example.com</td>
-                    <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                    <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
                         th:text="${kh.diaChi != null ? kh.diaChi : 'N/A'}">Địa chỉ</td>
+                    <td>
+                        <div style="display: flex; gap: 6px;">
+                            <button class="btn-sm btn-edit" 
+                                    th:data-ma="${kh.maKhachHang}"
+                                    th:data-ten="${kh.ten}"
+                                    th:data-sdt="${kh.soDienThoai}"
+                                    th:data-email="${kh.email != null ? kh.email : ''}"
+                                    th:data-dia-chi="${kh.diaChi != null ? kh.diaChi : ''}"
+                                    onclick="openEditModal(this)">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <form th:action="@{/admin/khach-hang/xoa}" method="post" style="margin:0;"
+                                  onsubmit="return confirm('Xóa khách hàng này?');">
+                                <input type="hidden" name="maKhachHang" th:value="${kh.maKhachHang}">
+                                <button type="submit" class="btn-sm btn-delete"><i class="fas fa-trash"></i></button>
+                            </form>
+                        </div>
+                    </td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(khachHangs)}">
-                    <td colspan="5" style="text-align: center; padding: 32px; color: #999;">Chưa có khách hàng nào</td>
+                    <td colspan="6" style="text-align: center; padding: 32px; color: #999;">Chưa có khách hàng nào</td>
                 </tr>
                 </tbody>
             </table>
         </div>
     </main>
 </div>
+
+<!-- MODAL: Thêm khách hàng -->
+<div class="modal-overlay" id="addModal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-user-plus"></i> Thêm khách hàng</h3>
+            <button class="modal-close" onclick="document.getElementById('addModal').style.display='none'">&times;</button>
+        </div>
+        <form th:action="@{/admin/khach-hang/them}" method="post">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Họ tên *</label>
+                    <input type="text" name="ten" required placeholder="Nhập họ tên">
+                </div>
+                <div class="form-group">
+                    <label>Số điện thoại *</label>
+                    <input type="text" name="soDienThoai" required placeholder="VD: 0912345678">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" placeholder="email@example.com">
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label>Địa chỉ</label>
+                    <input type="text" name="diaChi" placeholder="Nhập địa chỉ">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('addModal').style.display='none'">Hủy</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Lưu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL: Sửa khách hàng -->
+<div class="modal-overlay" id="editModal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-user-edit"></i> Sửa khách hàng</h3>
+            <button class="modal-close" onclick="document.getElementById('editModal').style.display='none'">&times;</button>
+        </div>
+        <form th:action="@{/admin/khach-hang/cap-nhat}" method="post">
+            <input type="hidden" name="maKhachHang" id="editMaKH">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Họ tên *</label>
+                    <input type="text" name="ten" id="editTen" required>
+                </div>
+                <div class="form-group">
+                    <label>Số điện thoại *</label>
+                    <input type="text" name="soDienThoai" id="editSdt" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" id="editEmail">
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label>Địa chỉ</label>
+                    <input type="text" name="diaChi" id="editDiaChi">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('editModal').style.display='none'">Hủy</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Cập nhật</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openEditModal(btn) {
+        document.getElementById('editMaKH').value = btn.getAttribute('data-ma');
+        document.getElementById('editTen').value = btn.getAttribute('data-ten');
+        document.getElementById('editSdt').value = btn.getAttribute('data-sdt');
+        document.getElementById('editEmail').value = btn.getAttribute('data-email');
+        document.getElementById('editDiaChi').value = btn.getAttribute('data-dia-chi');
+        document.getElementById('editModal').style.display = 'flex';
+    }
+
+    window.addEventListener('load', () => {
+        const toastSuccess = document.getElementById('toastSuccess');
+        const toastError = document.getElementById('toastError');
+        
+        const showToast = (el) => {
+            if (el) {
+                el.classList.add('show');
+                setTimeout(() => {
+                    el.classList.remove('show');
+                    el.classList.add('hide');
+                }, 3000);
+            }
+        };
+
+        showToast(toastSuccess);
+        showToast(toastError);
+    });
+</script>
 
 </body>
 </html>

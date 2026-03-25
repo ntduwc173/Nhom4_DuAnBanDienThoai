@@ -31,6 +31,7 @@
                 <a href="#" class="header-btn"><i class="fas fa-user-circle"></i><span th:text="${session.tenNguoiDung}">User</span></a>
                 <div class="user-dropdown">
                     <a th:href="@{/tai-khoan}"><i class="fas fa-user"></i> Tài khoản</a>
+                    <a th:href="@{/don-hang}"><i class="fas fa-box"></i> Đơn hàng</a>
                     <a th:href="@{/dang-xuat}"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
                 </div>
             </div>
@@ -38,11 +39,49 @@
     </div>
 </header>
 
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer">
+    <div class="toast success" th:if="${success}" id="toast">
+        <i class="fas fa-check-circle"></i><span th:text="${success}"></span>
+    </div>
+    <div class="toast error" th:if="${error}" id="toast">
+        <i class="fas fa-exclamation-circle"></i><span th:text="${error}"></span>
+    </div>
+</div>
+
 <section class="page-section">
-    <div class="container" style="max-width: 900px;">
+    <div class="container" style="max-width: 960px;">
         <div class="page-header">
             <h1><i class="fas fa-box" style="color: #d70018;"></i> Đơn hàng của tôi</h1>
             <a th:href="@{/}" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Trang chủ</a>
+        </div>
+
+        <!-- Bộ lọc trạng thái -->
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;">
+            <a th:href="@{/don-hang}" class="filter-badge"
+               th:classappend="${trangThaiLoc == null} ? 'active' : ''">
+                <i class="fas fa-th-list"></i> Tất cả
+            </a>
+            <a th:href="@{/don-hang(trangThai='ch')}" class="filter-badge"
+               th:classappend="${trangThaiLoc == 'ch'} ? 'active' : ''">
+                <i class="fas fa-clock"></i> Chờ xử lý
+            </a>
+            <a th:href="@{/don-hang(trangThai='ang')}" class="filter-badge"
+               th:classappend="${trangThaiLoc == 'ang'} ? 'active' : ''">
+                <i class="fas fa-truck"></i> Đang giao
+            </a>
+            <a th:href="@{/don-hang(trangThai='Ho')}" class="filter-badge"
+               th:classappend="${trangThaiLoc == 'Ho'} ? 'active' : ''">
+                <i class="fas fa-check-circle"></i> Hoàn thành
+            </a>
+            <a th:href="@{/don-hang(trangThai='hủy')}" class="filter-badge"
+               th:classappend="${trangThaiLoc == 'hủy'} ? 'active' : ''">
+                <i class="fas fa-ban"></i> Đã hủy
+            </a>
+            <a th:href="@{/don-hang(trangThai='Pre')}" class="filter-badge"
+               th:classappend="${trangThaiLoc == 'Pre'} ? 'active' : ''">
+                <i class="fas fa-clock"></i> Pre-order
+            </a>
         </div>
 
         <!-- Empty -->
@@ -63,11 +102,13 @@
                             <span style="padding: 3px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600;"
                                   th:classappend="${dh.trangThai != null && (dh.trangThai.toLowerCase().startsWith('ch'))} ? 'status-cho' : 
                                                   (${dh.trangThai != null && (dh.trangThai.startsWith('Đang') || dh.trangThai.startsWith('Dang'))} ? 'status-ship' : 
-                                                  (${dh.trangThai != null && dh.trangThai.startsWith('Ho')} ? 'status-done' : 'status-cancel'))"
+                                                  (${dh.trangThai != null && dh.trangThai.startsWith('Ho')} ? 'status-done' : 
+                                                  (${dh.trangThai != null && dh.trangThai.contains('Pre')} ? 'status-pre' : 'status-cancel')))"
                                   th:text="${dh.trangThai != null && (dh.trangThai.toLowerCase().startsWith('ch')) ? 'Chờ xử lý' : 
                                            (dh.trangThai != null && (dh.trangThai.startsWith('Đang') || dh.trangThai.startsWith('Dang')) ? 'Đang giao' : 
                                            (dh.trangThai != null && dh.trangThai.startsWith('Ho') ? 'Hoàn thành' : 
-                                           (dh.trangThai != null && dh.trangThai.startsWith('H') && !dh.trangThai.startsWith('Ho') ? 'Đã hủy' : dh.trangThai)))}">Trạng thái</span>
+                                           (dh.trangThai != null && dh.trangThai.contains('Pre') ? 'Pre-order' : 
+                                           (dh.trangThai != null && dh.trangThai.contains('hủy') ? 'Đã hủy' : dh.trangThai))))}">Trạng thái</span>
                         </div>
                         <p style="font-size: 0.85rem; color: #999;">
                             <i class="fas fa-calendar-alt" style="margin-right: 4px;"></i>
@@ -77,14 +118,30 @@
                             <i class="fas fa-credit-card" style="margin-right: 4px;"></i>
                             <span th:text="${dh.phuongThucThanhToan}">COD</span>
                         </p>
+                        <p style="font-size: 0.85rem; color: #999; margin-top: 4px;" th:if="${dh.diaChiNhanHang != null}">
+                            <i class="fas fa-map-marker-alt" style="margin-right: 4px;"></i>
+                            <span th:text="${dh.diaChiNhanHang}">Địa chỉ</span>
+                        </p>
                     </div>
                     <div style="text-align: right;">
                         <p style="font-size: 1.2rem; font-weight: 700; color: #d70018;"
                            th:text="${#numbers.formatDecimal(dh.tongTien, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</p>
-                        <a th:href="@{/don-hang/chi-tiet/{id}(id=${dh.maDonHang})}"
-                           class="btn btn-sm" style="margin-top: 8px; background: #f5f5f5; color: #333; border-radius: 6px; padding: 6px 16px; font-size: 0.82rem;">
-                            <i class="fas fa-eye"></i> Chi tiết
-                        </a>
+                        <div style="display: flex; gap: 8px; margin-top: 8px; justify-content: flex-end; flex-wrap: wrap;">
+                            <a th:href="@{/don-hang/chi-tiet/{id}(id=${dh.maDonHang})}"
+                               class="btn btn-sm" style="background: #f5f5f5; color: #333; border-radius: 6px; padding: 6px 16px; font-size: 0.82rem;">
+                                <i class="fas fa-eye"></i> Chi tiết
+                            </a>
+                            <!-- T49: Nút hủy đơn (chỉ hiện khi Chờ xử lý) -->
+                            <form th:if="${dh.trangThai != null && dh.trangThai.toLowerCase().startsWith('ch')}"
+                                  th:action="@{/don-hang/huy}" method="post" style="margin: 0;"
+                                  onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?');">
+                                <input type="hidden" name="maDonHang" th:value="${dh.maDonHang}">
+                                <button type="submit" class="btn btn-sm"
+                                        style="background: #fce4ec; color: #c62828; border-radius: 6px; padding: 6px 16px; font-size: 0.82rem; border: none; cursor: pointer;">
+                                    <i class="fas fa-times"></i> Hủy đơn
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -100,8 +157,24 @@
     .status-cho { background: #fff3e0; color: #e65100; }
     .status-ship { background: #e3f2fd; color: #1565c0; }
     .status-done { background: #e8f5e9; color: #2e7d32; }
+    .status-pre { background: #e1f5fe; color: #0288d1; }
     .status-cancel { background: #fce4ec; color: #c62828; }
+    .filter-badge {
+        padding: 6px 16px; border-radius: 20px; font-size: 0.82rem; font-weight: 500;
+        background: #f5f5f5; color: #666; text-decoration: none; transition: all 0.2s;
+        display: inline-flex; align-items: center; gap: 6px;
+    }
+    .filter-badge:hover { background: #ffe0e0; color: #d70018; }
+    .filter-badge.active { background: #d70018; color: white; }
 </style>
+
+<script>
+    const toast = document.getElementById('toast');
+    if (toast) {
+        toast.classList.add('show');
+        setTimeout(() => { toast.classList.remove('show'); toast.classList.add('hide'); }, 3000);
+    }
+</script>
 
 </body>
 </html>

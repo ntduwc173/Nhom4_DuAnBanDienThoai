@@ -101,10 +101,10 @@
         <a th:href="@{/}" class="nav-link" th:classappend="${loaiDaChon == null && tuKhoa == null && hangDaChon == null} ? 'active' : ''">
             <i class="fas fa-home"></i> Trang chủ
         </a>
-        <a th:href="@{/(loai='Điện thoại')}" class="nav-link" th:classappend="${loaiDaChon == 'Điện thoại'} ? 'active' : ''">
+        <a th:href="@{/(loai='DT')}" class="nav-link" th:classappend="${loaiDaChon == 'DT'} ? 'active' : ''">
             <i class="fas fa-mobile-alt"></i> Điện thoại
         </a>
-        <a th:href="@{/(loai='Phụ kiện')}" class="nav-link" th:classappend="${loaiDaChon == 'Phụ kiện'} ? 'active' : ''">
+        <a th:href="@{/(loai='PK')}" class="nav-link" th:classappend="${loaiDaChon == 'PK'} ? 'active' : ''">
             <i class="fas fa-headphones"></i> Phụ kiện
         </a>
         <a th:href="@{/pre-order}" class="nav-link">
@@ -265,7 +265,12 @@
 
                 <!-- Actions -->
                 <div class="product-actions">
-                    <form th:if="${!sp.preOrder}" th:action="@{/gio-hang/them}" method="post" class="add-to-cart-form">
+                    <!-- Sản phẩm hết hàng -->
+                    <div th:if="${!sp.preOrder && (sp.soLuong == null || sp.soLuong <= 0)}" style="text-align: center;">
+                        <span style="color: #c62828; font-weight: 600; font-size: 0.85rem;"><i class="fas fa-ban"></i> Hết hàng</span>
+                    </div>
+                    <!-- Sản phẩm còn hàng -->
+                    <form th:if="${!sp.preOrder && sp.soLuong != null && sp.soLuong > 0}" th:action="@{/gio-hang/them}" method="post" class="add-to-cart-form">
                         <input type="hidden" name="maSanPham" th:value="${sp.maSanPham}">
                         <input type="hidden" name="soLuong" value="1">
                         <button type="submit" class="btn btn-cart">

@@ -59,6 +59,32 @@
             </div>
         </div>
 
+        <!-- Bộ lọc + tìm kiếm -->
+        <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center;">
+            <form th:action="@{/admin/don-hang}" method="get" style="display: flex; gap: 8px;">
+                <input type="text" name="tuKhoa" th:value="${tuKhoa}" placeholder="Tìm mã đơn, tên, SĐT..."
+                       style="padding: 8px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.85rem; width: 230px;">
+                <input type="hidden" name="trangThai" th:value="${trangThaiLoc}">
+                <button type="submit" class="btn btn-sm" style="background: #d70018; color: white; border: none; border-radius: 8px; padding: 8px 16px;">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <a th:href="@{/admin/don-hang(tuKhoa=${tuKhoa})}" class="filter-badge-admin"
+                   th:classappend="${trangThaiLoc == null} ? 'active' : ''">Tất cả</a>
+                <a th:href="@{/admin/don-hang(trangThai='ch', tuKhoa=${tuKhoa})}" class="filter-badge-admin"
+                   th:classappend="${trangThaiLoc == 'ch'} ? 'active' : ''">Chờ xử lý</a>
+                <a th:href="@{/admin/don-hang(trangThai='ang', tuKhoa=${tuKhoa})}" class="filter-badge-admin"
+                   th:classappend="${trangThaiLoc == 'ang'} ? 'active' : ''">Đang giao</a>
+                <a th:href="@{/admin/don-hang(trangThai='Ho', tuKhoa=${tuKhoa})}" class="filter-badge-admin"
+                   th:classappend="${trangThaiLoc == 'Ho'} ? 'active' : ''">Hoàn thành</a>
+                <a th:href="@{/admin/don-hang(trangThai='hủy', tuKhoa=${tuKhoa})}" class="filter-badge-admin"
+                   th:classappend="${trangThaiLoc == 'hủy'} ? 'active' : ''">Đã hủy</a>
+                <a th:href="@{/admin/don-hang(trangThai='Pre', tuKhoa=${tuKhoa})}" class="filter-badge-admin"
+                   th:classappend="${trangThaiLoc == 'Pre'} ? 'active' : ''">Pre-order</a>
+            </div>
+        </div>
+
         <!-- Bảng đơn hàng -->
         <div class="admin-table-wrapper">
             <table class="admin-table">
@@ -122,6 +148,15 @@
         </div>
     </main>
 </div>
+
+<style>
+    .filter-badge-admin {
+        padding: 6px 14px; border-radius: 20px; font-size: 0.82rem; font-weight: 500;
+        background: #f5f5f5; color: #666; text-decoration: none; transition: all 0.2s;
+    }
+    .filter-badge-admin:hover { background: #ffe0e0; color: #d70018; }
+    .filter-badge-admin.active { background: #d70018; color: white; }
+</style>
 
 <script>
     const toast = document.getElementById('toast');

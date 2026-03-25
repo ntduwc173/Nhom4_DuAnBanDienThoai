@@ -12,6 +12,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -21,11 +22,33 @@ public class AdminDonHangController {
     private final DonHangService donHangService;
     private final ChiTietDonHangRepository chiTietDonHangRepository;
 
-    // US13: Xem danh sách đơn hàng
+    // US13: Xem danh sách đơn hàng (có lọc + tìm kiếm)
     @GetMapping("")
-    public String danhSachDonHang(Model model) {
+    public String danhSachDonHang(@RequestParam(required = false) String trangThai,
+                                   @RequestParam(required = false) String tuKhoa,
+                                   Model model) {
         List<DonHang> donHangs = donHangService.getAllDonHang();
+
+        // Lọc theo trạng thái
+        if (trangThai != null && !trangThai.isEmpty()) {
+            donHangs = donHangs.stream()
+                    .filter(dh -> dh.getTrangThai() != null && dh.getTrangThai().toLowerCase().contains(trangThai.toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+
+        // Tìm kiếm theo mã đơn hoặc tên khách
+        if (tuKhoa != null && !tuKhoa.trim().isEmpty()) {
+            String keyword = tuKhoa.trim().toLowerCase();
+            donHangs = donHangs.stream()
+                    .filter(dh -> (dh.getMaDonHang() != null && dh.getMaDonHang().toLowerCase().contains(keyword))
+                            || (dh.getKhachHang() != null && dh.getKhachHang().getTen() != null && dh.getKhachHang().getTen().toLowerCase().contains(keyword))
+                            || (dh.getKhachHang() != null && dh.getKhachHang().getSoDienThoai() != null && dh.getKhachHang().getSoDienThoai().contains(keyword)))
+                    .collect(Collectors.toList());
+        }
+
         model.addAttribute("donHangs", donHangs);
+        model.addAttribute("trangThaiLoc", trangThai);
+        model.addAttribute("tuKhoa", tuKhoa);
         return "admin/admin-don-hang";
     }
 

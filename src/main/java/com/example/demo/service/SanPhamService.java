@@ -48,6 +48,12 @@ public class SanPhamService {
         return sanPhamRepository.findByLoaiSanPham_TenLoai(tenLoai, pageable);
     }
 
+    // Lọc theo mã loại sản phẩm (DT / PK) - tránh lỗi URL encoding tiếng Việt
+    public Page<SanPham> getDanhSachSanPhamTheoMaLoai(String maLoai, int page, int size, String sapXep) {
+        Pageable pageable = PageRequest.of(page, size, getSort(sapXep));
+        return sanPhamRepository.findByLoaiSanPham_MaLoai(maLoai, pageable);
+    }
+
     // Tìm kiếm sản phẩm
     public Page<SanPham> timKiem(String tuKhoa, String maHang, int page, int size, String sapXep) {
         Pageable pageable = PageRequest.of(page, size, getSort(sapXep));

@@ -38,8 +38,8 @@ public class SanPhamController {
             sanPhamPage = sanPhamService.timKiem(tuKhoa, hang, page, size, sapXep);
             model.addAttribute("tuKhoa", tuKhoa);
         } else if (loai != null && !loai.isEmpty()) {
-            // Lọc theo Loại sản phẩm
-            sanPhamPage = sanPhamService.getDanhSachSanPhamTheoTenLoai(loai, page, size, sapXep);
+            // Lọc theo Mã Loại sản phẩm (DT / PK)
+            sanPhamPage = sanPhamService.getDanhSachSanPhamTheoMaLoai(loai, page, size, sapXep);
             model.addAttribute("loaiDaChon", loai);
         } else if (hang != null && !hang.isEmpty()) {
             // Lọc theo hãng

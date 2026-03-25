@@ -20,6 +20,7 @@ public class DonHangService {
     private final DonHangRepository donHangRepository;
     private final ChiTietDonHangRepository chiTietDonHangRepository;
     private final KhachHangRepository khachHangRepository;
+    private final SanPhamRepository sanPhamRepository;
     private final GioHangService gioHangService;
     private final MaGiamGiaRepository maGiamGiaRepository;
     private final DonHangGiamGiaRepository donHangGiamGiaRepository;
@@ -51,6 +52,20 @@ public class DonHangService {
             throw new RuntimeException("Giỏ hàng trống!");
         }
 
+        // Kiểm tra tồn kho trước khi đặt hàng
+        for (ChiTietGioHang cartItem : gioHangItems) {
+            SanPham sp = cartItem.getSanPham();
+            if (!Boolean.TRUE.equals(sp.getPreOrder())) {
+                int tonKho = sp.getSoLuong() != null ? sp.getSoLuong() : 0;
+                if (tonKho <= 0) {
+                    throw new RuntimeException("Sản phẩm '" + sp.getTenSanPham() + "' đã hết hàng!");
+                }
+                if (cartItem.getSoLuong() > tonKho) {
+                    throw new RuntimeException("Sản phẩm '" + sp.getTenSanPham() + "' chỉ còn " + tonKho + " sản phẩm trong kho!");
+                }
+            }
+        }
+
         // Tính tổng tiền
         BigDecimal tongTien = gioHangService.getTongTienGioHang();
 
@@ -66,7 +81,7 @@ public class DonHangService {
 
         donHang = donHangRepository.save(donHang);
 
-        // Tạo chi tiết đơn hàng
+        // Tạo chi tiết đơn hàng + trừ tồn kho
         for (ChiTietGioHang cartItem : gioHangItems) {
             ChiTietDonHang chiTiet = new ChiTietDonHang();
             chiTiet.setMaCTDonHang(UUID.randomUUID().toString().substring(0, 20));
@@ -75,6 +90,13 @@ public class DonHangService {
             chiTiet.setSoLuong(cartItem.getSoLuong());
             chiTiet.setGia(cartItem.getSanPham().getGia());
             chiTietDonHangRepository.save(chiTiet);
+
+            // Trừ tồn kho
+            SanPham sp = cartItem.getSanPham();
+            if (!Boolean.TRUE.equals(sp.getPreOrder()) && sp.getSoLuong() != null) {
+                sp.setSoLuong(sp.getSoLuong() - cartItem.getSoLuong());
+                sanPhamRepository.save(sp);
+            }
         }
 
         // US06: Áp dụng mã giảm giá (nếu có)
@@ -242,6 +264,31 @@ public class DonHangService {
         DonHang donHang = donHangRepository.findById(maDonHang)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng!"));
         donHang.setDaThanhToan(daThanhToan);
+        return donHangRepository.save(donHang);
+    }
+
+    // T49: Hủy đơn hàng (chỉ cho phép khi trạng thái "Chờ xử lý") + hoàn trả tồn kho
+    @Transactional
+    public DonHang huyDonHang(String maDonHang) {
+        DonHang donHang = donHangRepository.findById(maDonHang)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng!"));
+
+        if (donHang.getTrangThai() == null || !donHang.getTrangThai().toLowerCase().startsWith("ch")) {
+            throw new RuntimeException("Chỉ có thể hủy đơn hàng đang ở trạng thái 'Chờ xử lý'!");
+        }
+
+        // Hoàn trả tồn kho
+        List<ChiTietDonHang> chiTietList = chiTietDonHangRepository.findByDonHang_MaDonHang(maDonHang);
+        for (ChiTietDonHang ct : chiTietList) {
+            SanPham sp = ct.getSanPham();
+            if (sp != null && !Boolean.TRUE.equals(sp.getPreOrder())) {
+                int currentStock = sp.getSoLuong() != null ? sp.getSoLuong() : 0;
+                sp.setSoLuong(currentStock + ct.getSoLuong());
+                sanPhamRepository.save(sp);
+            }
+        }
+
+        donHang.setTrangThai("Đã hủy");
         return donHangRepository.save(donHang);
     }
 

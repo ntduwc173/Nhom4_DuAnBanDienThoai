@@ -34,12 +34,19 @@ public class GioHangService {
 
     // US03: Thêm sản phẩm vào giỏ hàng
     @Transactional
-    public boolean themVaoGioHang(String maSanPham, int soLuong) {
+    public void themVaoGioHang(String maSanPham, int soLuong) {
         GioHang gioHang = getOrCreateGioHang();
         Optional<SanPham> sanPhamOpt = sanPhamRepository.findById(maSanPham);
 
         if (sanPhamOpt.isEmpty()) {
-            return false;
+            throw new RuntimeException("Không tìm thấy sản phẩm!");
+        }
+
+        SanPham sanPham = sanPhamOpt.get();
+
+        // Kiểm tra tồn kho - không cho thêm sản phẩm hết hàng
+        if (sanPham.getSoLuong() != null && sanPham.getSoLuong() <= 0 && !Boolean.TRUE.equals(sanPham.getPreOrder())) {
+            throw new RuntimeException("Sản phẩm đã hết hàng!");
         }
 
         // Kiểm tra xem SP đã có trong giỏ chưa
@@ -47,20 +54,26 @@ public class GioHangService {
                 .findFirstByGioHang_MaGioHangAndSanPham_MaSanPham(gioHang.getMaGioHang(), maSanPham);
 
         if (existingItem.isPresent()) {
-            // Cập nhật số lượng
+            // Cập nhật số lượng - kiểm tra không vượt quá tồn kho
             ChiTietGioHang item = existingItem.get();
-            item.setSoLuong(item.getSoLuong() + soLuong);
+            int soLuongMoi = item.getSoLuong() + soLuong;
+            if (sanPham.getSoLuong() != null && soLuongMoi > sanPham.getSoLuong() && !Boolean.TRUE.equals(sanPham.getPreOrder())) {
+                throw new RuntimeException("Số lượng trong giỏ hàng sẽ vượt quá tồn kho (Tối đa: " + sanPham.getSoLuong() + ")!");
+            }
+            item.setSoLuong(soLuongMoi);
             chiTietGioHangRepository.save(item);
         } else {
-            // Thêm mới
+            // Thêm mới - kiểm tra không vượt quá tồn kho
+            if (sanPham.getSoLuong() != null && soLuong > sanPham.getSoLuong() && !Boolean.TRUE.equals(sanPham.getPreOrder())) {
+                throw new RuntimeException("Không thể thêm! Số lượng yêu cầu vượt quá tồn kho (Còn lại: " + sanPham.getSoLuong() + ")!");
+            }
             ChiTietGioHang chiTiet = new ChiTietGioHang();
             chiTiet.setMaCTGH(UUID.randomUUID().toString().substring(0, 20));
             chiTiet.setGioHang(gioHang);
-            chiTiet.setSanPham(sanPhamOpt.get());
+            chiTiet.setSanPham(sanPham);
             chiTiet.setSoLuong(soLuong);
             chiTietGioHangRepository.save(chiTiet);
         }
-        return true;
     }
 
     // Lấy danh sách chi tiết giỏ hàng
@@ -92,13 +105,18 @@ public class GioHangService {
     // Cập nhật số lượng
     @Transactional
     public void capNhatSoLuong(String maCTGH, int soLuong) {
-        Optional<ChiTietGioHang> item = chiTietGioHangRepository.findById(maCTGH);
-        if (item.isPresent()) {
+        Optional<ChiTietGioHang> itemOpt = chiTietGioHangRepository.findById(maCTGH);
+        if (itemOpt.isPresent()) {
+            ChiTietGioHang item = itemOpt.get();
             if (soLuong <= 0) {
                 chiTietGioHangRepository.deleteById(maCTGH);
             } else {
-                item.get().setSoLuong(soLuong);
-                chiTietGioHangRepository.save(item.get());
+                SanPham sp = item.getSanPham();
+                if (sp.getSoLuong() != null && soLuong > sp.getSoLuong() && !Boolean.TRUE.equals(sp.getPreOrder())) {
+                    throw new RuntimeException("Số lượng cập nhật vượt quá tồn kho (Tối đa: " + sp.getSoLuong() + ")!");
+                }
+                item.setSoLuong(soLuong);
+                chiTietGioHangRepository.save(item);
             }
         }
     }

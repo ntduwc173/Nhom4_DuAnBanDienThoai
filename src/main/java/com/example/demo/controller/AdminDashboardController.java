@@ -30,21 +30,20 @@ public class AdminDashboardController {
 
         List<DonHang> allDonHang = donHangRepository.findAllByOrderByNgayDatDesc();
 
-        // Tính tổng doanh thu
         BigDecimal tongDoanhThu = allDonHang.stream()
-                .filter(dh -> dh.getTrangThai() != null && dh.getTrangThai().startsWith("Ho"))
+                .filter(dh -> dh.getTrangThai() != null && (dh.getTrangThai().toLowerCase().contains("hoàn") || dh.getTrangThai().toLowerCase().contains("hoan")))
                 .map(DonHang::getTongTien)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // Đếm theo trạng thái (Kết hợp xử lý lỗi font chuỗi ký tự cũ trong DB)
+        // Đếm theo trạng thái (Kết hợp xử lý lỗi font và đa dạng cách đặt tên trạng thái)
         long donChoXuLy = allDonHang.stream().filter(dh -> 
-                dh.getTrangThai() != null && dh.getTrangThai().toLowerCase().startsWith("ch")).count();
+                dh.getTrangThai() != null && (dh.getTrangThai().toLowerCase().contains("chờ") || dh.getTrangThai().toLowerCase().contains("cho"))).count();
         long donDangShip = allDonHang.stream().filter(dh -> 
-                dh.getTrangThai() != null && (dh.getTrangThai().startsWith("Đang") || dh.getTrangThai().startsWith("Dang"))).count();
+                dh.getTrangThai() != null && (dh.getTrangThai().toLowerCase().contains("đang") || dh.getTrangThai().toLowerCase().contains("dang"))).count();
         long donHoanThanh = allDonHang.stream().filter(dh -> 
-                dh.getTrangThai() != null && dh.getTrangThai().startsWith("Ho")).count();
+                dh.getTrangThai() != null && (dh.getTrangThai().toLowerCase().contains("hoàn") || dh.getTrangThai().toLowerCase().contains("hoan"))).count();
         long donHuy = allDonHang.stream().filter(dh -> 
-                dh.getTrangThai() != null && dh.getTrangThai().startsWith("H") && !dh.getTrangThai().startsWith("Ho")).count();
+                dh.getTrangThai() != null && (dh.getTrangThai().toLowerCase().contains("hủy") || dh.getTrangThai().toLowerCase().contains("huy"))).count();
 
         // Đơn hàng gần đây (5 đơn)
         List<DonHang> donHangGanDay = allDonHang.stream().limit(5).toList();

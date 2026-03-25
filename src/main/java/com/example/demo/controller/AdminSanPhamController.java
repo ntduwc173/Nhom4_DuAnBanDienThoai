@@ -44,6 +44,8 @@ public class AdminSanPhamController {
                                @RequestParam BigDecimal gia,
                                @RequestParam String maLoai,
                                @RequestParam(required = false) String hinhAnh,
+                               @RequestParam(required = false) String moTa,
+                               @RequestParam(required = false) Integer soLuong,
                                @RequestParam(required = false) Boolean preOrder,
                                RedirectAttributes redirectAttributes) {
         try {
@@ -52,6 +54,8 @@ public class AdminSanPhamController {
             sp.setTenSanPham(tenSanPham);
             sp.setGia(gia);
             sp.setHinhAnh(hinhAnh);
+            sp.setMoTa(moTa);
+            sp.setSoLuong(soLuong != null ? soLuong : 0);
             sp.setPreOrder(preOrder != null && preOrder);
 
             hangRepository.findById(maHang).ifPresent(sp::setHang);
@@ -73,6 +77,8 @@ public class AdminSanPhamController {
                                   @RequestParam BigDecimal gia,
                                   @RequestParam String maLoai,
                                   @RequestParam(required = false) String hinhAnh,
+                                  @RequestParam(required = false) String moTa,
+                                  @RequestParam(required = false) Integer soLuong,
                                   @RequestParam(required = false) Boolean preOrder,
                                   RedirectAttributes redirectAttributes) {
         try {
@@ -81,6 +87,8 @@ public class AdminSanPhamController {
 
             sp.setTenSanPham(tenSanPham);
             sp.setGia(gia);
+            sp.setMoTa(moTa);
+            sp.setSoLuong(soLuong != null ? soLuong : 0);
             sp.setPreOrder(preOrder != null && preOrder);
 
             if (hinhAnh != null && !hinhAnh.trim().isEmpty()) {
