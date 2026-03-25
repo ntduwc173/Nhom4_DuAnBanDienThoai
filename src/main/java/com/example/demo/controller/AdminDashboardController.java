@@ -32,15 +32,19 @@ public class AdminDashboardController {
 
         // Tính tổng doanh thu
         BigDecimal tongDoanhThu = allDonHang.stream()
-                .filter(dh -> "Hoàn thành".equals(dh.getTrangThai()))
+                .filter(dh -> dh.getTrangThai() != null && dh.getTrangThai().startsWith("Ho"))
                 .map(DonHang::getTongTien)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // Đếm theo trạng thái
-        long donChoXuLy = allDonHang.stream().filter(dh -> "Chờ xử lý".equals(dh.getTrangThai())).count();
-        long donDangShip = allDonHang.stream().filter(dh -> "Đang giao".equals(dh.getTrangThai())).count();
-        long donHoanThanh = allDonHang.stream().filter(dh -> "Hoàn thành".equals(dh.getTrangThai())).count();
-        long donHuy = allDonHang.stream().filter(dh -> "Đã hủy".equals(dh.getTrangThai())).count();
+        // Đếm theo trạng thái (Kết hợp xử lý lỗi font chuỗi ký tự cũ trong DB)
+        long donChoXuLy = allDonHang.stream().filter(dh -> 
+                dh.getTrangThai() != null && dh.getTrangThai().toLowerCase().startsWith("ch")).count();
+        long donDangShip = allDonHang.stream().filter(dh -> 
+                dh.getTrangThai() != null && (dh.getTrangThai().startsWith("Đang") || dh.getTrangThai().startsWith("Dang"))).count();
+        long donHoanThanh = allDonHang.stream().filter(dh -> 
+                dh.getTrangThai() != null && dh.getTrangThai().startsWith("Ho")).count();
+        long donHuy = allDonHang.stream().filter(dh -> 
+                dh.getTrangThai() != null && dh.getTrangThai().startsWith("H") && !dh.getTrangThai().startsWith("Ho")).count();
 
         // Đơn hàng gần đây (5 đơn)
         List<DonHang> donHangGanDay = allDonHang.stream().limit(5).toList();

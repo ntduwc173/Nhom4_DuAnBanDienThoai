@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface KhachHangRepository extends JpaRepository<KhachHang, String> {
-    Optional<KhachHang> findBySoDienThoai(String soDienThoai);
+    Optional<KhachHang> findFirstBySoDienThoai(String soDienThoai);
 }

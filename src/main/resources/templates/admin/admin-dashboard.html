@@ -139,8 +139,13 @@
                     <td style="color: #d70018; font-weight: 600;" th:text="${#numbers.formatDecimal(dh.tongTien, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</td>
                     <td>
                         <span class="status"
-                              th:classappend="${dh.trangThai == 'Chờ xử lý'} ? 'status-cho-xu-ly' : (${dh.trangThai == 'Đang giao'} ? 'status-dang-ship' : (${dh.trangThai == 'Hoàn thành'} ? 'status-hoan-thanh' : 'status-huy'))"
-                              th:text="${dh.trangThai}">Trạng thái</span>
+                              th:classappend="${dh.trangThai != null && (dh.trangThai.toLowerCase().startsWith('ch'))} ? 'status-cho-xu-ly' : 
+                                              (${dh.trangThai != null && (dh.trangThai.startsWith('Đang') || dh.trangThai.startsWith('Dang'))} ? 'status-dang-ship' : 
+                                              (${dh.trangThai != null && dh.trangThai.startsWith('Ho')} ? 'status-hoan-thanh' : 'status-huy'))"
+                              th:text="${dh.trangThai != null && (dh.trangThai.toLowerCase().startsWith('ch')) ? 'Chờ xử lý' : 
+                                       (dh.trangThai != null && (dh.trangThai.startsWith('Đang') || dh.trangThai.startsWith('Dang')) ? 'Đang giao' : 
+                                       (dh.trangThai != null && dh.trangThai.startsWith('Ho') ? 'Hoàn thành' : 
+                                       (dh.trangThai != null && dh.trangThai.startsWith('H') && !dh.trangThai.startsWith('Ho') ? 'Đã hủy' : dh.trangThai)))}">Trạng thái</span>
                     </td>
                     <td th:text="${#temporals.format(dh.ngayDat, 'dd/MM/yyyy HH:mm')}">01/01/2026</td>
                     <td>

@@ -93,11 +93,13 @@
                         </td>
                         <td>
                             <span class="status"
-                                  th:classappend="${dh.trangThai == 'Chờ xử lý' || dh.trangThai == 'Chờ duyệt'} ? 'status-cho-xu-ly' :
-                                                  (${dh.trangThai == 'Đang Ship'} ? 'status-dang-ship' :
-                                                  (${dh.trangThai == 'Hoàn thành'} ? 'status-hoan-thanh' :
-                                                  (${dh.trangThai == 'Hủy'} ? 'status-huy' : 'status-pre-order')))"
-                                  th:text="${dh.trangThai}">Trạng thái</span>
+                                  th:classappend="${dh.trangThai != null && (dh.trangThai.toLowerCase().startsWith('ch'))} ? 'status-cho-xu-ly' : 
+                                                  (${dh.trangThai != null && (dh.trangThai.startsWith('Đang') || dh.trangThai.startsWith('Dang'))} ? 'status-dang-ship' : 
+                                                  (${dh.trangThai != null && dh.trangThai.startsWith('Ho')} ? 'status-hoan-thanh' : 'status-huy'))"
+                                  th:text="${dh.trangThai != null && (dh.trangThai.toLowerCase().startsWith('ch')) ? 'Chờ xử lý' : 
+                                           (dh.trangThai != null && (dh.trangThai.startsWith('Đang') || dh.trangThai.startsWith('Dang')) ? 'Đang giao' : 
+                                           (dh.trangThai != null && dh.trangThai.startsWith('Ho') ? 'Hoàn thành' : 
+                                           (dh.trangThai != null && dh.trangThai.startsWith('H') && !dh.trangThai.startsWith('Ho') ? 'Đã hủy' : dh.trangThai)))}">Trạng thái</span>
                         </td>
                         <td>
                             <span class="paid-badge paid-yes" th:if="${dh.daThanhToan != null && dh.daThanhToan}">

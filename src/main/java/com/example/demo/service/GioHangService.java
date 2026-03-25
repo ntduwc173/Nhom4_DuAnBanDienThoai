@@ -44,7 +44,7 @@ public class GioHangService {
 
         // Kiểm tra xem SP đã có trong giỏ chưa
         Optional<ChiTietGioHang> existingItem = chiTietGioHangRepository
-                .findByGioHang_MaGioHangAndSanPham_MaSanPham(gioHang.getMaGioHang(), maSanPham);
+                .findFirstByGioHang_MaGioHangAndSanPham_MaSanPham(gioHang.getMaGioHang(), maSanPham);
 
         if (existingItem.isPresent()) {
             // Cập nhật số lượng

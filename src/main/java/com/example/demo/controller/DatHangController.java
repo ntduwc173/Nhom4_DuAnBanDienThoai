@@ -49,6 +49,7 @@ public class DatHangController {
                                   @RequestParam String diaChi,
                                   @RequestParam String phuongThucThanhToan,
                                   @RequestParam(required = false) String maGiamGia,
+                                  jakarta.servlet.http.HttpSession session,
                                   RedirectAttributes redirectAttributes,
                                   Model model) {
         // US04: Validate thông tin
@@ -66,8 +67,14 @@ public class DatHangController {
         }
 
         try {
+            com.example.demo.entity.TaiKhoan taiKhoan = (com.example.demo.entity.TaiKhoan) session.getAttribute("taiKhoan");
+            com.example.demo.entity.KhachHang loggedInKhachHang = null;
+            if (taiKhoan != null) {
+                loggedInKhachHang = taiKhoan.getKhachHang();
+            }
+
             DonHang donHang = donHangService.taoDonHang(tenKhach, soDienThoai, diaChi,
-                    phuongThucThanhToan, maGiamGia);
+                    phuongThucThanhToan, maGiamGia, loggedInKhachHang);
             redirectAttributes.addFlashAttribute("donHang", donHang);
             return "redirect:/dat-hang/thanh-cong?maDon=" + donHang.getMaDonHang();
         } catch (Exception e) {

@@ -20,4 +20,10 @@ public interface DonHangRepository extends JpaRepository<DonHang, String> {
 
     // Đơn hàng của tôi (theo khách hàng)
     List<DonHang> findByKhachHang_MaKhachHangOrderByNgayDatDesc(String maKhachHang);
+
+    // Lấy tất cả đơn hàng theo số điện thoại
+    List<DonHang> findByKhachHang_SoDienThoaiOrderByNgayDatDesc(String soDienThoai);
+
+    // Lấy đơn hàng theo Mã KH hoặc Số điện thoại
+    List<DonHang> findByKhachHang_MaKhachHangOrKhachHang_SoDienThoaiOrderByNgayDatDesc(String maKhachHang, String soDienThoai);
 }

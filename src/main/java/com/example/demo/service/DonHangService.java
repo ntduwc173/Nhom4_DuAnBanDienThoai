@@ -27,18 +27,23 @@ public class DonHangService {
     // US04, US05: Tạo đơn hàng từ giỏ hàng
     @Transactional
     public DonHang taoDonHang(String tenKhach, String soDienThoai, String diaChi,
-                              String phuongThucThanhToan, String maGiamGiaCode) {
+                              String phuongThucThanhToan, String maGiamGiaCode, KhachHang loggedInKhachHang) {
 
-        // Tìm hoặc tạo khách hàng
-        KhachHang khachHang = khachHangRepository.findBySoDienThoai(soDienThoai)
-                .orElseGet(() -> {
-                    KhachHang kh = new KhachHang();
-                    kh.setMaKhachHang(UUID.randomUUID().toString().substring(0, 20));
-                    kh.setTen(tenKhach);
-                    kh.setSoDienThoai(soDienThoai);
-                    kh.setDiaChi(diaChi);
-                    return khachHangRepository.save(kh);
-                });
+        // Tìm hoặc tạo khách hàng (nếu đang đăng nhập thì dùng trực tiếp)
+        KhachHang khachHang;
+        if (loggedInKhachHang != null) {
+            khachHang = loggedInKhachHang;
+        } else {
+            khachHang = khachHangRepository.findFirstBySoDienThoai(soDienThoai)
+                    .orElseGet(() -> {
+                        KhachHang kh = new KhachHang();
+                        kh.setMaKhachHang(UUID.randomUUID().toString().substring(0, 20));
+                        kh.setTen(tenKhach);
+                        kh.setSoDienThoai(soDienThoai);
+                        kh.setDiaChi(diaChi);
+                        return khachHangRepository.save(kh);
+                    });
+        }
 
         // Lấy giỏ hàng
         List<ChiTietGioHang> gioHangItems = gioHangService.getChiTietGioHang();
@@ -179,7 +184,7 @@ public class DonHangService {
     public DonHang taoPreOrder(String maSanPham, String tenKhach, String soDienThoai,
                                 String diaChi) {
         // Pre-order bắt buộc chuyển khoản
-        KhachHang khachHang = khachHangRepository.findBySoDienThoai(soDienThoai)
+        KhachHang khachHang = khachHangRepository.findFirstBySoDienThoai(soDienThoai)
                 .orElseGet(() -> {
                     KhachHang kh = new KhachHang();
                     kh.setMaKhachHang(UUID.randomUUID().toString().substring(0, 20));

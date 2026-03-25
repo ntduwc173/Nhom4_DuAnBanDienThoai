@@ -25,6 +25,7 @@ public class SanPhamController {
     public String trangChu(@RequestParam(defaultValue = "0") int page,
                            @RequestParam(defaultValue = "8") int size,
                            @RequestParam(required = false) String hang,
+                           @RequestParam(required = false) String loai,
                            @RequestParam(required = false) String tuKhoa,
                            @RequestParam(required = false) String sapXep,
                            HttpSession session,
@@ -36,6 +37,10 @@ public class SanPhamController {
             // Tìm kiếm
             sanPhamPage = sanPhamService.timKiem(tuKhoa, hang, page, size, sapXep);
             model.addAttribute("tuKhoa", tuKhoa);
+        } else if (loai != null && !loai.isEmpty()) {
+            // Lọc theo Loại sản phẩm
+            sanPhamPage = sanPhamService.getDanhSachSanPhamTheoTenLoai(loai, page, size, sapXep);
+            model.addAttribute("loaiDaChon", loai);
         } else if (hang != null && !hang.isEmpty()) {
             // Lọc theo hãng
             sanPhamPage = sanPhamService.locTheoHang(hang, page, size, sapXep);

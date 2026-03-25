@@ -42,6 +42,12 @@ public class SanPhamService {
         return locTheoHang(maHang, page, size, null);
     }
 
+    // Lọc theo tên loại sản phẩm (Điện thoại / Phụ kiện)
+    public Page<SanPham> getDanhSachSanPhamTheoTenLoai(String tenLoai, int page, int size, String sapXep) {
+        Pageable pageable = PageRequest.of(page, size, getSort(sapXep));
+        return sanPhamRepository.findByLoaiSanPham_TenLoai(tenLoai, pageable);
+    }
+
     // Tìm kiếm sản phẩm
     public Page<SanPham> timKiem(String tuKhoa, String maHang, int page, int size, String sapXep) {
         Pageable pageable = PageRequest.of(page, size, getSort(sapXep));

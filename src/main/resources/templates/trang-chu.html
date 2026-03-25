@@ -98,13 +98,13 @@
 <!-- NAVIGATION BAR -->
 <nav class="nav-bar">
     <div class="container nav-bar-inner">
-        <a th:href="@{/}" class="nav-link active">
+        <a th:href="@{/}" class="nav-link" th:classappend="${loaiDaChon == null && tuKhoa == null && hangDaChon == null} ? 'active' : ''">
             <i class="fas fa-home"></i> Trang chủ
         </a>
-        <a th:href="@{/}" class="nav-link">
+        <a th:href="@{/(loai='Điện thoại')}" class="nav-link" th:classappend="${loaiDaChon == 'Điện thoại'} ? 'active' : ''">
             <i class="fas fa-mobile-alt"></i> Điện thoại
         </a>
-        <a th:href="@{/}" class="nav-link">
+        <a th:href="@{/(loai='Phụ kiện')}" class="nav-link" th:classappend="${loaiDaChon == 'Phụ kiện'} ? 'active' : ''">
             <i class="fas fa-headphones"></i> Phụ kiện
         </a>
         <a th:href="@{/pre-order}" class="nav-link">
@@ -186,11 +186,11 @@
     <div class="container">
         <h2 class="section-title"><i class="fas fa-filter"></i> Lọc theo thương hiệu</h2>
         <div class="brand-filters">
-            <a th:href="@{/}" class="brand-btn" th:classappend="${hangDaChon == null} ? 'active' : ''">
+            <a th:href="@{/(loai=${loaiDaChon})}" class="brand-btn" th:classappend="${hangDaChon == null} ? 'active' : ''">
                 <i class="fas fa-th-large"></i> Tất cả
             </a>
             <a th:each="h : ${danhSachHang}"
-               th:href="@{/(hang=${h.maHang})}"
+               th:href="@{/(hang=${h.maHang}, loai=${loaiDaChon})}"
                class="brand-btn"
                th:classappend="${hangDaChon == h.maHang} ? 'active' : ''">
                 <span th:text="${h.tenHang}">Hãng</span>
@@ -281,20 +281,20 @@
 
         <!-- Pagination -->
         <div class="pagination" th:if="${totalPages > 1}">
-            <a th:href="@{/(page=${currentPage - 1}, hang=${hangDaChon}, tuKhoa=${tuKhoa}, sapXep=${sapXep})}"
+            <a th:href="@{/(page=${currentPage - 1}, hang=${hangDaChon}, loai=${loaiDaChon}, tuKhoa=${tuKhoa}, sapXep=${sapXep})}"
                th:if="${currentPage > 0}"
                class="page-btn">
                 <i class="fas fa-chevron-left"></i> Trước
             </a>
 
             <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-                <a th:href="@{/(page=${i}, hang=${hangDaChon}, tuKhoa=${tuKhoa}, sapXep=${sapXep})}"
+                <a th:href="@{/(page=${i}, hang=${hangDaChon}, loai=${loaiDaChon}, tuKhoa=${tuKhoa}, sapXep=${sapXep})}"
                    class="page-btn"
                    th:classappend="${i == currentPage} ? 'active' : ''"
                    th:text="${i + 1}">1</a>
             </span>
 
-            <a th:href="@{/(page=${currentPage + 1}, hang=${hangDaChon}, tuKhoa=${tuKhoa}, sapXep=${sapXep})}"
+            <a th:href="@{/(page=${currentPage + 1}, hang=${hangDaChon}, loai=${loaiDaChon}, tuKhoa=${tuKhoa}, sapXep=${sapXep})}"
                th:if="${currentPage < totalPages - 1}"
                class="page-btn">
                 Tiếp <i class="fas fa-chevron-right"></i>

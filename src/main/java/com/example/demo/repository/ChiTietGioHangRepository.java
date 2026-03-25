@@ -10,6 +10,6 @@ import java.util.Optional;
 @Repository
 public interface ChiTietGioHangRepository extends JpaRepository<ChiTietGioHang, String> {
     List<ChiTietGioHang> findByGioHang_MaGioHang(String maGioHang);
-    Optional<ChiTietGioHang> findByGioHang_MaGioHangAndSanPham_MaSanPham(String maGioHang, String maSanPham);
+    Optional<ChiTietGioHang> findFirstByGioHang_MaGioHangAndSanPham_MaSanPham(String maGioHang, String maSanPham);
     void deleteByGioHang_MaGioHang(String maGioHang);
 }
